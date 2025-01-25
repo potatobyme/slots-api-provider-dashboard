@@ -11,11 +11,8 @@ const httpLink = createHttpLink({
   credentials: 'include',
 });
 
-const authLink = setContext((_: unknown, { headers }: { headers: Headers }) => {
-  // Get the authentication token from local storage if it exists
+const authLink = setContext((_, { headers }: { headers?: Headers } = {}) => {
   const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-  
-  // Return the headers to the context so httpLink can read them
   return {
     headers: {
       ...headers,
@@ -29,7 +26,11 @@ export const client = new ApolloClient({
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'network-only',
+    },
+    query: {
+      fetchPolicy: 'network-only',
     },
   },
+  connectToDevTools: process.env.NODE_ENV === 'development',
 }); 
