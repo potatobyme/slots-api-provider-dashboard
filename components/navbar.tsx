@@ -18,7 +18,7 @@ const searchResults: SearchResult[] = [
   { id: '3', title: 'Billing Statement', type: 'Billing', url: '/billing/statements' },
 ];
 
-export function NavBar() {
+const NavBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const pathname = usePathname();
@@ -110,4 +110,6 @@ export function NavBar() {
       </div>
     </div>
   );
-} 
+}
+
+export default NavBar; 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from "react"
 import { 
   Info, 
   Copy, 
@@ -37,13 +38,13 @@ export default function MainPage() {
       {/* Deposit Info Section */}
       <section>
         <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
-          <CreditCard className="h-5 w-5 text-blue-500" />
+          <CreditCard className="h-5 w-5 text-[#18B69B]" />
           Deposit Info
         </h2>
         <div className="bg-white rounded-lg border p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <Info className="h-6 w-6 text-blue-500" />
+            <div className="p-3 bg-[#18B69B]/10 rounded-lg">
+              <Info className="h-6 w-6 text-[#18B69B]" />
             </div>
             <div>
               <div className="text-sm text-gray-500 mb-1">Your balance deposit address - USDT ERC-20:</div>
@@ -52,10 +53,10 @@ export default function MainPage() {
                   {dashboardData.depositAddress}
                 </code>
                 <button 
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors" 
+                  className="p-2 hover:bg-[#18B69B]/10 rounded-lg transition-colors" 
                   title="Copy address"
                 >
-                  <Copy className="h-4 w-4 text-gray-500" />
+                  <Copy className="h-4 w-4 text-gray-500 hover:text-[#18B69B]" />
                 </button>
               </div>
             </div>
@@ -66,7 +67,7 @@ export default function MainPage() {
       {/* Billing Stats Section */}
       <section>
         <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
-          <BarChart className="h-5 w-5 text-blue-500" />
+          <BarChart className="h-5 w-5 text-[#18B69B]" />
           Billing Statistics
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -130,7 +131,7 @@ export default function MainPage() {
       {/* User General Info Section */}
       <section>
         <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
-          <Users className="h-5 w-5 text-blue-500" />
+          <Users className="h-5 w-5 text-[#18B69B]" />
           User General Info
         </h2>
         <div className="bg-white rounded-lg border hover:shadow-md transition-shadow">

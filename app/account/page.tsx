@@ -87,23 +87,23 @@ export default function AccountPage() {
     <div className="p-6 space-y-4 bg-[#F8F9FC] min-h-screen">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h1 className="text-xl font-medium text-gray-800">Account</h1>
+        <h1 className="text-xl font-medium text-gray-800">Account Management</h1>
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search accounts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-[250px] pl-9 pr-4 py-1.5 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-[250px] pl-9 pr-4 py-1.5 text-sm bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#18B69B] focus:border-[#18B69B] transition-all"
             />
           </div>
           <button 
             onClick={() => setShowAgentForm(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-all shadow-sm hover:shadow active:scale-95"
+            className="inline-flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-[#18B69B] rounded-md hover:bg-[#18B69B]/90 transition-all shadow-sm hover:shadow active:scale-95"
           >
-            <Plus className="h-4 w-4 stroke-[2.5]" />
+            <Plus className="h-4 w-4" />
             Add Agent
           </button>
           <button className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
@@ -138,10 +138,10 @@ export default function AccountPage() {
                     <input
                       type="email"
                       required
-                      placeholder="agent@example.com"
+                      placeholder="Enter email address"
                       value={agentForm.email}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-[#18B69B] focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div>
@@ -149,10 +149,10 @@ export default function AccountPage() {
                     <input
                       type="password"
                       required
-                      placeholder="••••••••"
+                      placeholder="Enter password"
                       value={agentForm.password}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, password: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-[#18B69B] focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div>
@@ -163,7 +163,7 @@ export default function AccountPage() {
                       placeholder="Enter agent code"
                       value={agentForm.agentCode}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, agentCode: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-[#18B69B] focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div>
@@ -171,7 +171,7 @@ export default function AccountPage() {
                     <select
                       value={agentForm.agentCurrency}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, agentCurrency: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-[#18B69B] focus:border-[#18B69B] bg-white"
                     >
                       <option value="USD">USD - US Dollar</option>
                       <option value="EUR">EUR - Euro</option>
@@ -190,7 +190,7 @@ export default function AccountPage() {
                       placeholder="Enter GGR token"
                       value={agentForm.ggrToken}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, ggrToken: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-[#18B69B] focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div>
@@ -201,7 +201,7 @@ export default function AccountPage() {
                       placeholder="Enter agent secret"
                       value={agentForm.agentSecret}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, agentSecret: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-[#18B69B] focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div>
@@ -209,10 +209,10 @@ export default function AccountPage() {
                     <input
                       type="url"
                       required
-                      placeholder="https://"
+                      placeholder="Enter callback URL"
                       value={agentForm.callbackUrl}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, callbackUrl: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+                      className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-[#18B69B] focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div className="pt-2 md:pt-4">
@@ -223,7 +223,7 @@ export default function AccountPage() {
                         onChange={(e) => setAgentForm(prev => ({ ...prev, status: e.target.checked }))}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#18B69B]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#18B69B]"></div>
                       <span className="ml-3 text-sm font-medium text-gray-700">Active Status</span>
                     </label>
                   </div>
@@ -240,7 +240,7 @@ export default function AccountPage() {
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-all shadow-sm hover:shadow active:scale-95"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#18B69B] rounded-md hover:bg-[#18B69B]/90 transition-all shadow-sm hover:shadow active:scale-95"
                 >
                   <Plus className="h-4 w-4" />
                   Create Agent

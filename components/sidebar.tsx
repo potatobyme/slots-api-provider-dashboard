@@ -20,14 +20,12 @@ import {
 } from "lucide-react"
 import { useState, useEffect } from "react"
 
-interface MenuItemProps {
+const MenuItem = ({ href, icon, children, isActive }: {
   href: string
   icon: React.ReactNode
   children: React.ReactNode
   isActive?: boolean
-}
-
-function MenuItem({ href, icon, children, isActive }: MenuItemProps) {
+}) => {
   return (
     <Link 
       href={href} 
@@ -45,16 +43,14 @@ function MenuItem({ href, icon, children, isActive }: MenuItemProps) {
   )
 }
 
-interface SubMenuProps {
+const SubMenu = ({ title, icon, children, defaultOpen = false, isActive = false }: {
   title: string
   icon: React.ReactNode
   children: React.ReactNode
   defaultOpen?: boolean
   isActive?: boolean
-}
-
-function SubMenu({ title, icon, children, defaultOpen = false, isActive = false }: SubMenuProps) {
-  const [isOpen, setIsOpen] = useState(defaultOpen)
+}) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen || isActive)
 
   return (
     <div className="space-y-1">
@@ -86,7 +82,7 @@ function SubMenu({ title, icon, children, defaultOpen = false, isActive = false 
   )
 }
 
-export function Sidebar() {
+const Sidebar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
 
@@ -101,7 +97,6 @@ export function Sidebar() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false)
   }, [pathname])
@@ -118,7 +113,7 @@ export function Sidebar() {
         </MenuItem>
 
         <MenuItem 
-          href="/account" 
+          href="/account"
           icon={<User className="h-5 w-5" />}
           isActive={pathname === '/account'}
         >
@@ -160,18 +155,18 @@ export function Sidebar() {
           isActive={pathname.startsWith('/backoffice')}
         >
           <MenuItem 
-            href="/backoffice/transactions-recent" 
+            href="/transactions" 
             icon={<Receipt className="h-5 w-5" />}
-            isActive={pathname === '/backoffice/transactions-recent'}
+            isActive={pathname === '/transactions'}
           >
-            Transactions (Recent - 2 Days)
+            Transactions
           </MenuItem>
           <MenuItem 
-            href="/backoffice/transactions-archive" 
+            href="/transactions/deposit-withdraw" 
             icon={<Receipt className="h-5 w-5" />}
-            isActive={pathname === '/backoffice/transactions-archive'}
+            isActive={pathname === '/transactions/deposit-withdraw'}
           >
-            Transactions (Archive - 10 Days)
+            Deposit/Withdraw
           </MenuItem>
           <MenuItem 
             href="/backoffice/players" 
@@ -264,4 +259,6 @@ export function Sidebar() {
     </>
   )
 }
+
+export default Sidebar
 
