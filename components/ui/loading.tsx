@@ -1,3 +1,5 @@
+'use client';
+
 import { Loader2 } from "lucide-react"
 
 interface LoadingProps {
@@ -52,4 +54,35 @@ export function LoadingContainer({ children, isLoading, className = "" }: {
       )}
     </div>
   )
+}
+
+export function LoadingSpinner({ size = "default" }: { size?: "small" | "default" | "large" }) {
+  const sizeClasses = {
+    small: "h-4 w-4",
+    default: "h-6 w-6",
+    large: "h-8 w-8"
+  };
+
+  return (
+    <Loader2 className={`${sizeClasses[size]} animate-spin text-[#18B69B]`} />
+  );
+}
+
+export function LoadingPage() {
+  return (
+    <div className="h-screen w-full flex items-center justify-center">
+      <LoadingSpinner size="large" />
+    </div>
+  );
+}
+
+export function LoadingOverlay() {
+  return (
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white p-4 rounded-lg shadow-lg flex items-center gap-3">
+        <LoadingSpinner />
+        <span className="text-gray-700">Loading...</span>
+      </div>
+    </div>
+  );
 } 
