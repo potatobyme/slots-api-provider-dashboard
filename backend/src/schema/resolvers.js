@@ -22,7 +22,19 @@ const resolvers = {
       if (!user) {
         throw new Error('Not authenticated');
       }
-      return await ApiKey.find({ userId: user.id });
+      const apiKeys = await ApiKey.find({ userId: user.id });
+      return apiKeys.map(key => {
+        const keyObj = key.toObject();
+        return {
+          id: keyObj._id.toString(),
+          name: keyObj.name,
+          key: keyObj.key,
+          status: keyObj.status,
+          createdAt: key.createdAt.getTime().toString(),
+          lastUsed: keyObj.lastUsed ? keyObj.lastUsed.getTime().toString() : null,
+          updatedAt: key.updatedAt.getTime().toString()
+        };
+      });
     },
     getBalance: async (_, __, { user }) => {
       console.log('Get balance called for user:', user?.id);
@@ -298,9 +310,18 @@ const resolvers = {
           keyId: apiKey.id
         });
 
+        const apiKeyObj = apiKey.toObject();
         return {
           success: true,
-          apiKey
+          apiKey: {
+            id: apiKeyObj._id.toString(),
+            name: apiKeyObj.name,
+            key: apiKeyObj.key,
+            status: apiKeyObj.status,
+            createdAt: apiKey.createdAt.getTime().toString(),
+            lastUsed: apiKeyObj.lastUsed ? apiKeyObj.lastUsed.getTime().toString() : null,
+            updatedAt: apiKey.updatedAt.getTime().toString()
+          }
         };
       } catch (error) {
         console.error('[Mutation] createApiKey - Error:', error.message);

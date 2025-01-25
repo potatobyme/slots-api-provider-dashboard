@@ -417,14 +417,14 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                {/* Agent Code & Currency Row */}
+                {/* Agent Username & Currency Row */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Agent Code</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Agent Username</label>
                     <input
                       type="text"
                       required
-                      placeholder="Enter agent code"
+                      placeholder="Enter agent Username"
                       value={agentForm.agentCode}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, agentCode: e.target.value }))}
                       className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
@@ -445,14 +445,14 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                {/* GGR Token & Agent Secret Row */}
+                {/* GGR Amount & Agent Secret Row */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">GGR Token</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">GGR Amount</label>
                     <input
                       type="text"
                       required
-                      placeholder="Enter GGR token"
+                      placeholder="Enter GGR Amount"
                       value={agentForm.ggrToken}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, ggrToken: e.target.value }))}
                       className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"

@@ -26,7 +26,14 @@ const apiKeySchema = new mongoose.Schema({
         default: null
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: { 
+        transform: function(doc, ret) {
+            ret.createdAt = ret.createdAt.getTime().toString();
+            ret.lastUsed = ret.lastUsed ? ret.lastUsed.getTime().toString() : null;
+            return ret;
+        }
+    }
 });
 
 // Generate a unique API key

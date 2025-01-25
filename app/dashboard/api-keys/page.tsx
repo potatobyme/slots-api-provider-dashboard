@@ -32,16 +32,38 @@ interface ApiKey {
 
 const formatDate = (dateString: string | null) => {
   if (!dateString) return 'Never';
+  
   try {
+    // Eğer timestamp olarak geldiyse (number string)
+    if (!isNaN(Number(dateString))) {
+      const timestamp = Number(dateString);
+      const date = new Date(timestamp);
+      return new Intl.DateTimeFormat('tr-TR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(date);
+    }
+
+    // ISO string olarak geldiyse
     const date = new Date(dateString);
-    return date.toLocaleString('tr-TR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    if (!isNaN(date.getTime())) {
+      return new Intl.DateTimeFormat('tr-TR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(date);
+    }
+
+    return 'Invalid Date';
   } catch (error) {
+    console.error('Date parsing error:', error);
     return 'Invalid Date';
   }
 };
