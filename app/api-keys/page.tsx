@@ -11,7 +11,9 @@ import {
   Hash,
   User,
   Shield,
-  Copy
+  Copy,
+  RotateCw,
+  Download
 } from "lucide-react"
 
 interface ApiKey {
@@ -127,7 +129,7 @@ export default function ApiKeysPage() {
             Create API Key
           </button>
           <button className="h-[34px] w-[34px] flex items-center justify-center text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 transition-colors">
-            <RefreshCw className="h-3.5 w-3.5" />
+            <RotateCw className="h-3.5 w-3.5" />
           </button>
           <button className="h-[34px] w-[34px] flex items-center justify-center text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 transition-colors">
             <Download className="h-3.5 w-3.5" />
