@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { 
-  LayoutDashboard, 
+import {
+  LayoutDashboard,
   User, 
   Key, 
   Receipt, 
@@ -16,7 +16,9 @@ import {
   GamepadIcon,
   PhoneCall,
   FileCode,
-  Menu
+  Menu,
+  Wallet,
+  BookOpen
 } from "lucide-react"
 import { useState, useEffect } from "react"
 
@@ -27,12 +29,12 @@ const MenuItem = ({ href, icon, children, isActive }: {
   isActive?: boolean
 }) => {
   return (
-    <Link 
-      href={href} 
+    <Link
+      href={href}
       className={`
         flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200
-        ${isActive 
-          ? 'bg-gray-100 text-gray-900 font-medium' 
+        ${isActive
+          ? 'bg-[#18B69B]/10 text-[#18B69B] font-medium' 
           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
         }
       `}
@@ -59,7 +61,7 @@ const SubMenu = ({ title, icon, children, defaultOpen = false, isActive = false 
         className={`
           flex items-center justify-between w-full px-3 py-2 rounded-lg transition-all duration-200
           ${isActive || isOpen
-            ? 'bg-gray-100 text-gray-900 font-medium'
+            ? 'bg-[#18B69B]/10 text-[#18B69B] font-medium'
             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
           }
         `}
@@ -142,6 +144,14 @@ const Sidebar = () => {
                 isActive={pathname === '/api-keys'}
               >
                 API Keys
+              </MenuItem>
+
+              <MenuItem 
+                href="/merchants" 
+                icon={<Wallet className="h-5 w-5" />}
+                isActive={pathname === '/merchants'}
+              >
+                Merchants
               </MenuItem>
 
               <SubMenu 
@@ -234,9 +244,9 @@ const Sidebar = () => {
                 isActive={pathname.startsWith('/help')}
               >
                 <MenuItem 
-                  href="/help/docs" 
-                  icon={<FileCode className="h-5 w-5" />}
-                  isActive={pathname === '/help/docs'}
+                  href="/docs" 
+                  icon={<BookOpen className="h-5 w-5" />}
+                  isActive={pathname === '/docs'}
                 >
                   Documentation
                 </MenuItem>
@@ -282,6 +292,14 @@ const Sidebar = () => {
             isActive={pathname === '/api-keys'}
           >
             API Keys
+          </MenuItem>
+
+          <MenuItem 
+            href="/merchants" 
+            icon={<Wallet className="h-5 w-5" />}
+            isActive={pathname === '/merchants'}
+          >
+            Merchants
           </MenuItem>
 
           <SubMenu 
@@ -374,9 +392,9 @@ const Sidebar = () => {
             isActive={pathname.startsWith('/help')}
           >
             <MenuItem 
-              href="/help/docs" 
-              icon={<FileCode className="h-5 w-5" />}
-              isActive={pathname === '/help/docs'}
+              href="/docs" 
+              icon={<BookOpen className="h-5 w-5" />}
+              isActive={pathname === '/docs'}
             >
               Documentation
             </MenuItem>
