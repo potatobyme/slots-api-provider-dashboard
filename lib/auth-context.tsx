@@ -1,10 +1,19 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { User, authApi } from './api';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { useMutation, useQuery } from '@apollo/client';
+import { REGISTER_MUTATION, LOGIN_MUTATION, LOGOUT_MUTATION, ME_QUERY } from './graphql/auth';
+
+interface User {
+    id: string;
+    username: string;
+    email: string;
+    role: string;
+    balance: number;
+}
 
 interface AuthContextType {
     user: User | null;
@@ -34,10 +43,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const [registerMutation] = useMutation(REGISTER_MUTATION);
+    const [loginMutation] = useMutation(LOGIN_MUTATION);
+    const [logoutMutation] = useMutation(LOGOUT_MUTATION);
+    const { refetch: refetchMe } = useQuery(ME_QUERY, { skip: true });
+
     const decodeToken = (token: string): User | null => {
         try {
             const decoded = jwtDecode<JWTPayload>(token);
-            // Check if token is expired
             if (decoded.exp * 1000 < Date.now()) {
                 return null;
             }
@@ -54,7 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    // Load user data from token on mount
     useEffect(() => {
         const savedToken = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
         
@@ -64,13 +76,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setToken(savedToken);
                 setUser(decodedUser);
                 // Verify token validity with backend
-                authApi.getMe(savedToken)
-                    .then(response => {
-                        if (!response.success) {
-                            handleLogout();
-                        }
-                    })
-                    .catch(handleLogout);
+                refetchMe().then((response: { data?: { me: User | null } }) => {
+                    if (!response.data?.me) {
+                        handleLogout();
+                    }
+                }).catch(handleLogout);
             } else {
                 handleLogout();
             }
@@ -78,7 +88,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
     }, []);
 
-    // Prefetch common routes
     useEffect(() => {
         if (user) {
             router.prefetch('/dashboard');
@@ -88,7 +97,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [user, router]);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        try {
+            await logoutMutation();
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
         setUser(null);
         setToken(null);
         localStorage.removeItem(TOKEN_KEY);
@@ -106,9 +120,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             throw new Error('Invalid token received');
         }
 
-        // Set cookie for middleware
         Cookies.set(TOKEN_KEY, tokenData, {
-            expires: rememberMe ? 30 : undefined, // 30 days if remember me, session cookie otherwise
+            expires: rememberMe ? 30 : undefined,
             sameSite: 'strict',
             secure: process.env.NODE_ENV === 'production'
         });
@@ -118,25 +131,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const register = async (username: string, email: string, password: string, rememberMe: boolean = true) => {
-        const response = await authApi.register({ username, email, password });
+        const { data } = await registerMutation({
+            variables: {
+                input: { username, email, password }
+            }
+        });
         
-        if (response.success) {
-            saveAuthData(response.accessToken, rememberMe);
+        if (data.register.success) {
+            saveAuthData(data.register.accessToken, rememberMe);
             router.prefetch('/dashboard');
             router.push('/dashboard');
         } else {
-            throw new Error(response.error);
+            throw new Error(data.register.error);
         }
     };
 
     const login = async (email: string, password: string, rememberMe: boolean = true) => {
-        const response = await authApi.login({ email, password });
-        if (response.success) {
-            saveAuthData(response.accessToken, rememberMe);
+        const { data } = await loginMutation({
+            variables: {
+                input: { email, password }
+            }
+        });
+
+        if (data.login.success) {
+            saveAuthData(data.login.accessToken, rememberMe);
             router.prefetch('/dashboard');
             router.push('/dashboard');
         } else {
-            throw new Error(response.error);
+            throw new Error(data.login.error);
         }
     };
 
