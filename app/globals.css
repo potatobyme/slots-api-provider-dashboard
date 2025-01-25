@@ -4,18 +4,51 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #F8F9FC;
+  color: #2D3359;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #E5E7EB transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #E5E7EB;
+    border-radius: 20px;
+    border: transparent;
+  }
+  
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: #D1D5DB;
+  }
 }
 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
@@ -70,9 +103,6 @@ body {
 
 @layer base {
   * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
+    @apply border-[#E5E7EB];
   }
 }
