@@ -11,7 +11,8 @@ import {
   BarChart,
   AlertCircle,
   CreditCard,
-  Users
+  Users,
+  User
 } from "lucide-react"
 
 interface DashboardData {
@@ -143,41 +144,38 @@ export default function MainPage() {
         </div>
       </div>
 
-      {/* User General Info Section */}
+      {/* User General Info */}
       <section>
-        <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
-          <Users className="h-5 w-5 text-[#18B69B]" />
-          User General Info
-        </h2>
-        <div className="bg-white rounded-lg border hover:shadow-md transition-shadow">
-          <div className="p-6 space-y-4">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-violet-50 rounded-lg shrink-0">
-                <Info className="h-6 w-6 text-violet-500" />
+        <div className="flex items-center gap-2 mb-4">
+          <User className="h-5 w-5 text-[#18B69B]" />
+          <h2 className="text-lg font-medium">User General Info</h2>
+        </div>
+        <div className="bg-white rounded-lg divide-y divide-gray-200 border border-gray-200">
+          <div className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="h-10 w-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                <Info className="h-5 w-5 text-blue-500" />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-medium">Billing Method: GGR Billing - billed per 3 days (limit)</div>
-                <div className="text-sm text-gray-500 mt-1">
-                  GGR is billed every 3 days from your account balance, make sure it is sufficient.
-                </div>
+              <div className="flex-1">
+                <h3 className="text-base font-medium mb-1">Billing Method: GGR Billing - billed per 3 days (limit)</h3>
+                <p className="text-sm text-gray-600">GGR is billed every 3 days from your account balance, make sure it is sufficient.</p>
               </div>
-              <button className="p-2 hover:bg-gray-100 rounded-lg shrink-0">
-                <MoreHorizontal className="h-4 w-4 text-gray-500" />
+              <button className="text-gray-400 hover:text-gray-500">
+                <Info className="h-5 w-5" />
               </button>
             </div>
-
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-50 rounded-lg shrink-0">
-                <Key className="h-6 w-6 text-indigo-500" />
+          </div>
+          <div className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="h-10 w-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                <Key className="h-5 w-5 text-purple-500" />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-medium">Amount of API Keys: 1</div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Feel free to ask support additional api keys for your integration.
-                </div>
+              <div className="flex-1">
+                <h3 className="text-base font-medium mb-1">Amount of API Keys: 1</h3>
+                <p className="text-sm text-gray-600">Feel free to ask support additional api keys for your integration.</p>
               </div>
-              <button className="p-2 hover:bg-gray-100 rounded-lg shrink-0">
-                <MoreHorizontal className="h-4 w-4 text-gray-500" />
+              <button className="text-gray-400 hover:text-gray-500">
+                <Info className="h-5 w-5" />
               </button>
             </div>
           </div>

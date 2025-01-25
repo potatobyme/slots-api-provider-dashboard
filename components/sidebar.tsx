@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  LayoutDashboard,
+import { useState } from "react"
+import { 
+  LayoutGrid, 
   User, 
   Key, 
   Receipt, 
@@ -12,405 +13,219 @@ import {
   HelpCircle,
   ChevronDown,
   FileText,
-  Users,
-  GamepadIcon,
-  PhoneCall,
-  FileCode,
-  Menu,
   Wallet,
-  BookOpen
+  Users,
+  Gamepad2,
+  PhoneCall,
+  CircleDollarSign
 } from "lucide-react"
-import { useState, useEffect } from "react"
 
-const MenuItem = ({ href, icon, children, isActive }: {
+interface MenuItem {
   href: string
   icon: React.ReactNode
-  children: React.ReactNode
-  isActive?: boolean
-}) => {
+  label: string
+}
+
+interface SubMenu {
+  label: string
+  icon: React.ReactNode
+  items: MenuItem[]
+}
+
+const MenuItem = ({ href, icon, children, isActive = false }: { href: string, icon: React.ReactNode, children: React.ReactNode, isActive?: boolean }) => {
   return (
     <Link
       href={href}
-      className={`
-        flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200
-        ${isActive
-          ? 'bg-[#18B69B]/10 text-[#18B69B] font-medium' 
-          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-        }
-      `}
+      className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
+        isActive 
+          ? "bg-[#18B69B]/10 text-[#18B69B] font-medium" 
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
     >
       {icon}
-      <span className="text-sm">{children}</span>
+      <span>{children}</span>
     </Link>
   )
 }
 
-const SubMenu = ({ title, icon, children, defaultOpen = false, isActive = false }: {
-  title: string
-  icon: React.ReactNode
-  children: React.ReactNode
-  defaultOpen?: boolean
-  isActive?: boolean
-}) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen || isActive)
+const SubMenu = ({ label, icon, children, isActive = false }: { label: string, icon: React.ReactNode, children: React.ReactNode, isActive?: boolean }) => {
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="space-y-1">
+    <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`
-          flex items-center justify-between w-full px-3 py-2 rounded-lg transition-all duration-200
-          ${isActive || isOpen
-            ? 'bg-[#18B69B]/10 text-[#18B69B] font-medium'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-          }
-        `}
+        className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors ${
+          isActive 
+            ? "bg-[#18B69B]/10 text-[#18B69B] font-medium" 
+            : "text-gray-600 hover:bg-gray-100"
+        }`}
       >
         <div className="flex items-center gap-3">
           {icon}
-          <span className="text-sm">{title}</span>
+          <span>{label}</span>
         </div>
-        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
-      <div 
-        className={`
-          pl-4 space-y-1 overflow-hidden transition-all duration-200
-          ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}
-        `}
-      >
-        {children}
-      </div>
+      {isOpen && (
+        <div className="mt-1 ml-4 pl-4 border-l border-gray-200 space-y-1">
+          {children}
+        </div>
+      )}
     </div>
   )
 }
 
-const Sidebar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+export default function Sidebar() {
   const pathname = usePathname()
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsMobileMenuOpen(false)
-      }
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  useEffect(() => {
-    setIsMobileMenuOpen(false)
-  }, [pathname])
-
   return (
-    <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed bottom-4 right-4 p-3 bg-[#18B69B] text-white rounded-full shadow-lg hover:bg-[#18B69B]/90 transition-colors z-50"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
-
-      {/* Mobile Sidebar */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setIsMobileMenuOpen(false)}>
-          <div className="absolute left-0 top-0 bottom-0 w-64 bg-white">
-            <div className="h-16 flex items-center px-4 border-b">
-              <span className="text-xl font-semibold text-gray-900">Dashboard</span>
-            </div>
-
-            <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-              <MenuItem 
-                href="/" 
-                icon={<LayoutDashboard className="h-5 w-5" />}
-                isActive={pathname === '/'}
-              >
-                Main
-              </MenuItem>
-
-              <MenuItem 
-                href="/account"
-                icon={<User className="h-5 w-5" />}
-                isActive={pathname === '/account'}
-              >
-                Account
-              </MenuItem>
-
-              <MenuItem 
-                href="/api-keys" 
-                icon={<Key className="h-5 w-5" />}
-                isActive={pathname === '/api-keys'}
-              >
-                API Keys
-              </MenuItem>
-
-              <MenuItem 
-                href="/merchants" 
-                icon={<Wallet className="h-5 w-5" />}
-                isActive={pathname === '/merchants'}
-              >
-                Merchants
-              </MenuItem>
-
-              <SubMenu 
-                title="Billing" 
-                icon={<Receipt className="h-5 w-5" />}
-                isActive={pathname.startsWith('/billing')}
-              >
-                <MenuItem 
-                  href="/billing/statements" 
-                  icon={<FileText className="h-5 w-5" />}
-                  isActive={pathname === '/billing/statements'}
-                >
-                  Bill Statements
-                </MenuItem>
-                <MenuItem 
-                  href="/billing/provider-stats" 
-                  icon={<Building2 className="h-5 w-5" />}
-                  isActive={pathname === '/billing/provider-stats'}
-                >
-                  Provider Stats
-                </MenuItem>
-              </SubMenu>
-
-              <SubMenu 
-                title="Backoffice" 
-                icon={<Building2 className="h-5 w-5" />}
-                isActive={pathname.startsWith('/backoffice')}
-              >
-                <MenuItem 
-                  href="/transactions" 
-                  icon={<Receipt className="h-5 w-5" />}
-                  isActive={pathname === '/transactions'}
-                >
-                  Transactions
-                </MenuItem>
-                <MenuItem 
-                  href="/transactions/deposit-withdraw" 
-                  icon={<Receipt className="h-5 w-5" />}
-                  isActive={pathname === '/transactions/deposit-withdraw'}
-                >
-                  Deposit/Withdraw
-                </MenuItem>
-                <MenuItem 
-                  href="/backoffice/players" 
-                  icon={<Users className="h-5 w-5" />}
-                  isActive={pathname === '/backoffice/players'}
-                >
-                  Players
-                </MenuItem>
-                <MenuItem 
-                  href="/backoffice/games" 
-                  icon={<GamepadIcon className="h-5 w-5" />}
-                  isActive={pathname === '/backoffice/games'}
-                >
-                  Games
-                </MenuItem>
-                <MenuItem 
-                  href="/backoffice/callback" 
-                  icon={<PhoneCall className="h-5 w-5" />}
-                  isActive={pathname === '/backoffice/callback'}
-                >
-                  Callback Log
-                </MenuItem>
-              </SubMenu>
-
-              <SubMenu 
-                title="Bonus" 
-                icon={<Gift className="h-5 w-5" />}
-                isActive={pathname.startsWith('/bonus')}
-              >
-                <MenuItem 
-                  href="/bonus/active" 
-                  icon={<FileCode className="h-5 w-5" />}
-                  isActive={pathname === '/bonus/active'}
-                >
-                  Active Bonuses
-                </MenuItem>
-                <MenuItem 
-                  href="/bonus/history" 
-                  icon={<FileCode className="h-5 w-5" />}
-                  isActive={pathname === '/bonus/history'}
-                >
-                  Bonus History
-                </MenuItem>
-              </SubMenu>
-
-              <SubMenu 
-                title="Help" 
-                icon={<HelpCircle className="h-5 w-5" />}
-                isActive={pathname.startsWith('/help')}
-              >
-                <MenuItem 
-                  href="/docs" 
-                  icon={<BookOpen className="h-5 w-5" />}
-                  isActive={pathname === '/docs'}
-                >
-                  Documentation
-                </MenuItem>
-                <MenuItem 
-                  href="/help/support" 
-                  icon={<FileCode className="h-5 w-5" />}
-                  isActive={pathname === '/help/support'}
-                >
-                  Support
-                </MenuItem>
-              </SubMenu>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block fixed inset-y-0 left-0 w-64 bg-white border-r z-40">
-        <div className="h-16 flex items-center px-4 border-b">
-          <span className="text-xl font-semibold text-gray-900">Dashboard</span>
-        </div>
-
-        <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <MenuItem 
-            href="/" 
-            icon={<LayoutDashboard className="h-5 w-5" />}
-            isActive={pathname === '/'}
-          >
-            Main
-          </MenuItem>
-
-          <MenuItem 
-            href="/account"
-            icon={<User className="h-5 w-5" />}
-            isActive={pathname === '/account'}
-          >
-            Account
-          </MenuItem>
-
-          <MenuItem 
-            href="/api-keys" 
-            icon={<Key className="h-5 w-5" />}
-            isActive={pathname === '/api-keys'}
-          >
-            API Keys
-          </MenuItem>
-
-          <MenuItem 
-            href="/merchants" 
-            icon={<Wallet className="h-5 w-5" />}
-            isActive={pathname === '/merchants'}
-          >
-            Merchants
-          </MenuItem>
-
-          <SubMenu 
-            title="Billing" 
-            icon={<Receipt className="h-5 w-5" />}
-            isActive={pathname.startsWith('/billing')}
-          >
-            <MenuItem 
-              href="/billing/statements" 
-              icon={<FileText className="h-5 w-5" />}
-              isActive={pathname === '/billing/statements'}
-            >
-              Bill Statements
-            </MenuItem>
-            <MenuItem 
-              href="/billing/provider-stats" 
-              icon={<Building2 className="h-5 w-5" />}
-              isActive={pathname === '/billing/provider-stats'}
-            >
-              Provider Stats
-            </MenuItem>
-          </SubMenu>
-
-          <SubMenu 
-            title="Backoffice" 
-            icon={<Building2 className="h-5 w-5" />}
-            isActive={pathname.startsWith('/backoffice')}
-          >
-            <MenuItem 
-              href="/transactions" 
-              icon={<Receipt className="h-5 w-5" />}
-              isActive={pathname === '/transactions'}
-            >
-              Transactions
-            </MenuItem>
-            <MenuItem 
-              href="/transactions/deposit-withdraw" 
-              icon={<Receipt className="h-5 w-5" />}
-              isActive={pathname === '/transactions/deposit-withdraw'}
-            >
-              Deposit/Withdraw
-            </MenuItem>
-            <MenuItem 
-              href="/backoffice/players" 
-              icon={<Users className="h-5 w-5" />}
-              isActive={pathname === '/backoffice/players'}
-            >
-              Players
-            </MenuItem>
-            <MenuItem 
-              href="/backoffice/games" 
-              icon={<GamepadIcon className="h-5 w-5" />}
-              isActive={pathname === '/backoffice/games'}
-            >
-              Games
-            </MenuItem>
-            <MenuItem 
-              href="/backoffice/callback" 
-              icon={<PhoneCall className="h-5 w-5" />}
-              isActive={pathname === '/backoffice/callback'}
-            >
-              Callback Log
-            </MenuItem>
-          </SubMenu>
-
-          <SubMenu 
-            title="Bonus" 
-            icon={<Gift className="h-5 w-5" />}
-            isActive={pathname.startsWith('/bonus')}
-          >
-            <MenuItem 
-              href="/bonus/active" 
-              icon={<FileCode className="h-5 w-5" />}
-              isActive={pathname === '/bonus/active'}
-            >
-              Active Bonuses
-            </MenuItem>
-            <MenuItem 
-              href="/bonus/history" 
-              icon={<FileCode className="h-5 w-5" />}
-              isActive={pathname === '/bonus/history'}
-            >
-              Bonus History
-            </MenuItem>
-          </SubMenu>
-
-          <SubMenu 
-            title="Help" 
-            icon={<HelpCircle className="h-5 w-5" />}
-            isActive={pathname.startsWith('/help')}
-          >
-            <MenuItem 
-              href="/docs" 
-              icon={<BookOpen className="h-5 w-5" />}
-              isActive={pathname === '/docs'}
-            >
-              Documentation
-            </MenuItem>
-            <MenuItem 
-              href="/help/support" 
-              icon={<FileCode className="h-5 w-5" />}
-              isActive={pathname === '/help/support'}
-            >
-              Support
-            </MenuItem>
-          </SubMenu>
-        </div>
+    <aside className="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 hidden lg:flex lg:flex-col">
+      {/* Logo */}
+      <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200">
+        <span className="font-semibold text-[#2D3359]">Dashboard</span>
       </div>
-    </>
+
+      {/* Menu */}
+      <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <MenuItem 
+          href="/dashboard" 
+          icon={<LayoutGrid className="h-5 w-5" />}
+          isActive={pathname === "/dashboard"}
+        >
+          Main
+        </MenuItem>
+
+        <MenuItem 
+          href="/dashboard/account" 
+          icon={<User className="h-5 w-5" />}
+          isActive={pathname === "/dashboard/account"}
+        >
+          Account
+        </MenuItem>
+
+        <MenuItem 
+          href="/dashboard/api-keys" 
+          icon={<Key className="h-5 w-5" />}
+          isActive={pathname === "/dashboard/api-keys"}
+        >
+          API Keys
+        </MenuItem>
+
+        <MenuItem 
+          href="/dashboard/merchants" 
+          icon={<Building2 className="h-5 w-5" />}
+          isActive={pathname === "/dashboard/merchants"}
+        >
+          Merchants
+        </MenuItem>
+
+        <SubMenu 
+          label="Billing" 
+          icon={<CircleDollarSign className="h-5 w-5" />}
+          isActive={pathname.includes("/dashboard/billing")}
+        >
+          <MenuItem
+            href="/dashboard/billing/invoices"
+            icon={<Receipt className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/billing/invoices"}
+          >
+            Invoices
+          </MenuItem>
+          <MenuItem
+            href="/dashboard/billing/payments"
+            icon={<Receipt className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/billing/payments"}
+          >
+            Payments
+          </MenuItem>
+        </SubMenu>
+
+        <SubMenu 
+          label="Backoffice" 
+          icon={<Building2 className="h-5 w-5" />}
+          isActive={pathname.includes("/dashboard/backoffice")}
+        >
+          <MenuItem
+            href="/dashboard/backoffice/transactions"
+            icon={<Receipt className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/backoffice/transactions"}
+          >
+            Transactions
+          </MenuItem>
+          <MenuItem
+            href="/dashboard/backoffice/deposit-withdraw"
+            icon={<Wallet className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/backoffice/deposit-withdraw"}
+          >
+            Deposit/Withdraw
+          </MenuItem>
+          <MenuItem
+            href="/dashboard/backoffice/players"
+            icon={<Users className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/backoffice/players"}
+          >
+            Players
+          </MenuItem>
+          <MenuItem
+            href="/dashboard/backoffice/games"
+            icon={<Gamepad2 className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/backoffice/games"}
+          >
+            Games
+          </MenuItem>
+          <MenuItem
+            href="/dashboard/backoffice/callback-log"
+            icon={<PhoneCall className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/backoffice/callback-log"}
+          >
+            Callback Log
+          </MenuItem>
+        </SubMenu>
+
+        <SubMenu 
+          label="Bonus" 
+          icon={<Gift className="h-5 w-5" />}
+          isActive={pathname.includes("/dashboard/bonus")}
+        >
+          <MenuItem
+            href="/dashboard/bonus/active"
+            icon={<Gift className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/bonus/active"}
+          >
+            Active Bonuses
+          </MenuItem>
+          <MenuItem
+            href="/dashboard/bonus/history"
+            icon={<FileText className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/bonus/history"}
+          >
+            Bonus History
+          </MenuItem>
+        </SubMenu>
+
+        <SubMenu 
+          label="Help" 
+          icon={<HelpCircle className="h-5 w-5" />}
+          isActive={pathname.includes("/dashboard/help")}
+        >
+          <MenuItem
+            href="/dashboard/help/faq"
+            icon={<HelpCircle className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/help/faq"}
+          >
+            FAQ
+          </MenuItem>
+          <MenuItem
+            href="/dashboard/help/support"
+            icon={<HelpCircle className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/help/support"}
+          >
+            Support
+          </MenuItem>
+        </SubMenu>
+      </div>
+    </aside>
   )
 }
-
-export default Sidebar
 
