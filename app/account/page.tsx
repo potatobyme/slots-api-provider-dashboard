@@ -375,62 +375,67 @@ export default function AccountPage() {
 
       {/* Agent Form Modal */}
       {showAgentForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl mx-4 animate-in zoom-in-95">
-            <div className="flex items-center justify-between p-6 border-b">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-auto relative">
+            <div className="flex items-center justify-between p-4 border-b">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Add New Agent</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Add New Agent</h2>
                 <p className="text-sm text-gray-500 mt-1">Fill in the information to create a new agent</p>
               </div>
               <button 
                 onClick={() => setShowAgentForm(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleAgentSubmit} className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+            <form onSubmit={handleAgentSubmit} className="p-4">
+              <div className="space-y-4">
+                {/* Email & Password Row */}
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input
                       type="email"
                       required
                       placeholder="Enter email address"
                       value={agentForm.email}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
+                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <input
                       type="password"
                       required
                       placeholder="Enter password"
                       value={agentForm.password}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, password: e.target.value }))}
-                      className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
+                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
+                </div>
+
+                {/* Agent Code & Currency Row */}
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Agent Code</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Agent Code</label>
                     <input
                       type="text"
                       required
                       placeholder="Enter agent code"
                       value={agentForm.agentCode}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, agentCode: e.target.value }))}
-                      className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
+                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Agent Currency</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Agent Currency</label>
                     <select
                       value={agentForm.agentCurrency}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, agentCurrency: e.target.value }))}
-                      className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] bg-white"
+                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] bg-white"
                     >
                       <option value="USD">USD - US Dollar</option>
                       <option value="EUR">EUR - Euro</option>
@@ -440,56 +445,61 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                {/* GGR Token & Agent Secret Row */}
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">GGR Token</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">GGR Token</label>
                     <input
                       type="text"
                       required
                       placeholder="Enter GGR token"
                       value={agentForm.ggrToken}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, ggrToken: e.target.value }))}
-                      className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
+                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Agent Secret</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Agent Secret</label>
                     <input
                       type="text"
                       required
                       placeholder="Enter agent secret"
                       value={agentForm.agentSecret}
                       onChange={(e) => setAgentForm(prev => ({ ...prev, agentSecret: e.target.value }))}
-                      className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
+                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Callback URL</label>
+                </div>
+
+                {/* Callback URL */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Callback URL</label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="Enter callback URL"
+                    value={agentForm.callbackUrl}
+                    onChange={(e) => setAgentForm(prev => ({ ...prev, callbackUrl: e.target.value }))}
+                    className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
+                  />
+                </div>
+
+                {/* Active Status */}
+                <div>
+                  <label className="relative inline-flex items-center cursor-pointer">
                     <input
-                      type="url"
-                      required
-                      placeholder="Enter callback URL"
-                      value={agentForm.callbackUrl}
-                      onChange={(e) => setAgentForm(prev => ({ ...prev, callbackUrl: e.target.value }))}
-                      className="w-full px-3.5 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
+                      type="checkbox"
+                      checked={agentForm.status}
+                      onChange={(e) => setAgentForm(prev => ({ ...prev, status: e.target.checked }))}
+                      className="sr-only peer"
                     />
-                  </div>
-                  <div className="pt-2 md:pt-4">
-                    <label className="relative inline-flex items-center cursor-pointer w-full">
-                      <input
-                        type="checkbox"
-                        checked={agentForm.status}
-                        onChange={(e) => setAgentForm(prev => ({ ...prev, status: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#18B69B]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#18B69B]"></div>
-                      <span className="ml-3 text-sm font-medium text-gray-700">Active Status</span>
-                    </label>
-                  </div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#18B69B]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#18B69B]"></div>
+                    <span className="ml-3 text-sm font-medium text-gray-700">Active Status</span>
+                  </label>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-8 pt-6 border-t">
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
                 <button
                   type="button"
                   onClick={() => setShowAgentForm(false)}
