@@ -1,15 +1,38 @@
 const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
+  type BillingCycle {
+    current: Float!
+    limit: Float!
+    lastReset: String!
+  }
+
   type User {
     id: ID!
     username: String!
     email: String!
     role: String!
     balance: Float!
+    billingCycle: BillingCycle!
     lastLogin: String
     createdAt: String!
     updatedAt: String!
+  }
+
+  type ApiKey {
+    id: ID!
+    name: String!
+    key: String!
+    status: String!
+    lastUsed: String
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  type ApiKeyResponse {
+    success: Boolean!
+    apiKey: ApiKey
+    error: String
   }
 
   type SlotMachine {
@@ -50,8 +73,16 @@ const typeDefs = gql`
     password: String!
   }
 
+  input CreateApiKeyInput {
+    name: String!
+  }
+
   input UpdateBalanceInput {
     amount: Float!
+  }
+
+  input UpdateBillingLimitInput {
+    limit: Float!
   }
 
   input CreateSlotInput {
@@ -69,6 +100,8 @@ const typeDefs = gql`
   type Query {
     me: User
     getBalance: Float!
+    getBillingCycle: BillingCycle!
+    getApiKeys: [ApiKey!]!
     getSlots: [SlotMachine!]!
     getSlot(id: ID!): SlotMachine
     getSlotStats(id: ID!): SlotMetrics!
@@ -78,7 +111,11 @@ const typeDefs = gql`
     register(input: RegisterInput!): AuthResponse!
     login(input: LoginInput!): AuthResponse!
     logout: Boolean!
+    createApiKey(input: CreateApiKeyInput!): ApiKeyResponse!
+    deleteApiKey(id: ID!): Boolean!
+    toggleApiKeyStatus(id: ID!): ApiKey!
     updateBalance(input: UpdateBalanceInput!): Float!
+    updateBillingLimit(input: UpdateBillingLimitInput!): BillingCycle!
     createSlot(input: CreateSlotInput!): SlotMachine!
     updateSlotMetrics(id: ID!, input: UpdateSlotMetricsInput!): SlotMetrics!
   }

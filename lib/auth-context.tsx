@@ -7,6 +7,8 @@ import { jwtDecode } from 'jwt-decode';
 import { useMutation, useQuery } from '@apollo/client';
 import { REGISTER_MUTATION, LOGIN_MUTATION, LOGOUT_MUTATION, ME_QUERY } from './graphql/auth';
 
+const TOKEN_KEY = 'auth_token';
+
 interface User {
     id: string;
     username: string;
@@ -22,11 +24,10 @@ interface AuthContextType {
     register: (username: string, email: string, password: string, rememberMe: boolean) => Promise<void>;
     logout: () => void;
     loading: boolean;
+    isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const TOKEN_KEY = 'auth_token';
 
 interface JWTPayload {
     id: string;
@@ -38,132 +39,155 @@ interface JWTPayload {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
-    const [registerMutation] = useMutation(REGISTER_MUTATION);
     const [loginMutation] = useMutation(LOGIN_MUTATION);
+    const [registerMutation] = useMutation(REGISTER_MUTATION);
     const [logoutMutation] = useMutation(LOGOUT_MUTATION);
-    const { refetch: refetchMe } = useQuery(ME_QUERY, { skip: true });
 
-    const decodeToken = (token: string): User | null => {
-        try {
-            const decoded = jwtDecode<JWTPayload>(token);
-            if (decoded.exp * 1000 < Date.now()) {
-                return null;
+    const { refetch: refetchMe } = useQuery(ME_QUERY, {
+        skip: !token,
+        fetchPolicy: 'network-only',
+        onCompleted: (data) => {
+            if (data?.me) {
+                setUser(data.me);
             }
-            return {
-                id: decoded.id,
-                email: decoded.email,
-                username: decoded.username,
-                role: decoded.role,
-                balance: decoded.balance
-            };
-        } catch (error) {
-            console.error('Error decoding token:', error);
-            return null;
+            setLoading(false);
+        },
+        onError: () => {
+            handleLogout();
         }
-    };
+    });
 
     useEffect(() => {
-        const savedToken = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
-        
-        if (savedToken) {
-            const decodedUser = decodeToken(savedToken);
-            if (decodedUser) {
-                setToken(savedToken);
-                setUser(decodedUser);
-                // Verify token validity with backend
-                refetchMe().then((response: { data?: { me: User | null } }) => {
-                    if (!response.data?.me) {
+        const initAuth = async () => {
+            try {
+                const storedToken = Cookies.get(TOKEN_KEY);
+                if (storedToken) {
+                    const decoded = jwtDecode<JWTPayload>(storedToken);
+                    const currentTime = Date.now() / 1000;
+
+                    if (decoded.exp > currentTime) {
+                        setToken(storedToken);
+                        await refetchMe();
+                    } else {
                         handleLogout();
                     }
-                }).catch(handleLogout);
-            } else {
+                } else {
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('Auth initialization error:', error);
                 handleLogout();
             }
-        }
-        setLoading(false);
-    }, []);
+        };
 
-    useEffect(() => {
-        if (user) {
-            router.prefetch('/dashboard');
-        } else {
-            router.prefetch('/auth/login');
-            router.prefetch('/auth/register');
-        }
-    }, [user, router]);
+        initAuth();
+    }, []);
 
     const handleLogout = async () => {
         try {
             await logoutMutation();
+            
+            // Clear all auth data
+            setUser(null);
+            setToken(null);
+            
+            // Clear cookies with all possible paths
+            Cookies.remove(TOKEN_KEY, { path: '/' });
+            
+            // Clear storages
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Force a full page reload to clear any remaining state
+            window.location.href = '/auth/login';
         } catch (error) {
             console.error('Logout error:', error);
+            // Force reload even if cleanup fails
+            window.location.href = '/auth/login';
         }
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem(TOKEN_KEY);
-        sessionStorage.removeItem(TOKEN_KEY);
-        Cookies.remove(TOKEN_KEY);
-        router.push('/auth/login');
     };
 
-    const saveAuthData = (tokenData: string, rememberMe: boolean) => {
-        const storage = rememberMe ? localStorage : sessionStorage;
-        storage.setItem(TOKEN_KEY, tokenData);
-        
-        const decodedUser = decodeToken(tokenData);
-        if (!decodedUser) {
-            throw new Error('Invalid token received');
-        }
+    const login = async (email: string, password: string, rememberMe: boolean) => {
+        try {
+            const { data } = await loginMutation({
+                variables: {
+                    input: { email, password }
+                }
+            });
 
-        Cookies.set(TOKEN_KEY, tokenData, {
-            expires: rememberMe ? 30 : undefined,
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production'
-        });
-        
-        setUser(decodedUser);
-        setToken(tokenData);
-    };
+            if (data?.login.success) {
+                const { accessToken, user } = data.login;
+                setToken(accessToken);
+                setUser(user);
 
-    const register = async (username: string, email: string, password: string, rememberMe: boolean = true) => {
-        const { data } = await registerMutation({
-            variables: {
-                input: { username, email, password }
+                // Set cookie with appropriate options
+                if (rememberMe) {
+                    Cookies.set(TOKEN_KEY, accessToken, { 
+                        expires: 30,
+                        path: '/',
+                        sameSite: 'strict'
+                    });
+                } else {
+                    Cookies.set(TOKEN_KEY, accessToken, {
+                        path: '/',
+                        sameSite: 'strict'
+                    });
+                }
+
+                router.push('/dashboard');
+            } else {
+                throw new Error(data?.login.error || 'Login failed');
             }
-        });
-        
-        if (data.register.success) {
-            saveAuthData(data.register.accessToken, rememberMe);
-            router.prefetch('/dashboard');
-            router.push('/dashboard');
-        } else {
-            throw new Error(data.register.error);
+        } catch (error) {
+            console.error('Login error:', error);
+            throw error;
         }
     };
 
-    const login = async (email: string, password: string, rememberMe: boolean = true) => {
-        const { data } = await loginMutation({
-            variables: {
-                input: { email, password }
-            }
-        });
+    const register = async (username: string, email: string, password: string, rememberMe: boolean) => {
+        try {
+            const { data } = await registerMutation({
+                variables: {
+                    input: { username, email, password }
+                }
+            });
 
-        if (data.login.success) {
-            saveAuthData(data.login.accessToken, rememberMe);
-            router.prefetch('/dashboard');
-            router.push('/dashboard');
-        } else {
-            throw new Error(data.login.error);
+            if (data?.register.success) {
+                const { accessToken, user } = data.register;
+                setToken(accessToken);
+                setUser(user);
+
+                // Set cookie with appropriate options
+                if (rememberMe) {
+                    Cookies.set(TOKEN_KEY, accessToken, { 
+                        expires: 30,
+                        path: '/',
+                        sameSite: 'strict'
+                    });
+                } else {
+                    Cookies.set(TOKEN_KEY, accessToken, {
+                        path: '/',
+                        sameSite: 'strict'
+                    });
+                }
+
+                router.push('/dashboard');
+            } else {
+                throw new Error(data?.register.error || 'Registration failed');
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            throw error;
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout: handleLogout, loading }}>
+        <AuthContext.Provider value={{ user, token, login, register, logout: handleLogout, loading, isAuthenticated: !!user }}>
             {children}
         </AuthContext.Provider>
     );

@@ -2,20 +2,20 @@
 
 import { Info, Copy, User, Key, Clock, Loader2 } from "lucide-react"
 import { useState } from "react"
-import { useQuery } from '@apollo/client';
-import { GET_BALANCE_QUERY } from '@/lib/graphql/auth';
+import { useQuery } from '@apollo/client'
+import { GET_BALANCE_QUERY, GET_BILLING_CYCLE_QUERY } from '@/lib/graphql/auth'
 
 export default function DashboardPage() {
   const [copied, setCopied] = useState(false)
   const depositAddress = "0xa38b04735C44F5e8ca6EAbFb3611E068F323a31f"
-  const { data, loading } = useQuery(GET_BALANCE_QUERY, {
+  
+  const { data: balanceData, loading: balanceLoading } = useQuery(GET_BALANCE_QUERY, {
     fetchPolicy: 'network-only',
-    nextFetchPolicy: 'cache-first',
-    pollInterval: 30000,
-    onError: (error) => {
-      console.error('Balance fetch error:', error);
-    }
-  });
+  })
+
+  const { data: billingData, loading: billingLoading } = useQuery(GET_BILLING_CYCLE_QUERY, {
+    fetchPolicy: 'network-only',
+  })
 
   const copyToClipboard = async () => {
     try {
@@ -26,6 +26,11 @@ export default function DashboardPage() {
       console.error("Failed to copy:", err)
     }
   }
+
+  // Calculate billing cycle percentage
+  const billingPercentage = billingData?.getBillingCycle 
+    ? (billingData.getBillingCycle.current / billingData.getBillingCycle.limit) * 100 
+    : 0
 
   return (
     <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
@@ -76,18 +81,19 @@ export default function DashboardPage() {
             <div className="px-3 sm:px-4 pb-3 sm:pb-4">
               <div className="flex items-center gap-1 sm:gap-2">
                 <span className="text-green-500 text-xl sm:text-2xl font-semibold">$</span>
-                {loading ? (
+                {balanceLoading ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-5 w-5 animate-spin text-[#18B69B]" />
                   </div>
                 ) : (
                   <span className="text-xl sm:text-2xl font-semibold">
-                    {data?.getBalance.toFixed(2) || '0.00'}
+                    {balanceData?.getBalance.toFixed(2) || '0.00'}
                   </span>
                 )}
               </div>
             </div>
           </div>
+
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="flex items-center justify-between p-3 sm:p-4">
               <div className="text-xs sm:text-sm text-gray-600">Current Billing Cycle ($)</div>
@@ -102,10 +108,19 @@ export default function DashboardPage() {
             <div className="px-3 sm:px-4 pb-3 sm:pb-4">
               <div className="flex items-center gap-1 sm:gap-2">
                 <Clock className="h-4 sm:h-5 w-4 sm:w-5 text-blue-500" />
-                <span className="text-xl sm:text-2xl font-semibold">0</span>
+                {billingLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-[#18B69B]" />
+                  </div>
+                ) : (
+                  <span className="text-xl sm:text-2xl font-semibold">
+                    {billingData?.getBillingCycle?.current.toFixed(2) || '0.00'}
+                  </span>
+                )}
               </div>
             </div>
           </div>
+
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="flex items-center justify-between p-3 sm:p-4">
               <div className="text-xs sm:text-sm text-gray-600">Billing Cycle Limit Reached (%)</div>
@@ -119,8 +134,26 @@ export default function DashboardPage() {
             </div>
             <div className="px-3 sm:px-4 pb-3 sm:pb-4">
               <div className="flex items-center gap-1 sm:gap-2">
-                <Info className="h-4 sm:h-5 w-4 sm:w-5 text-yellow-500" />
-                <span className="text-xl sm:text-2xl font-semibold">0%</span>
+                <div className="flex-1">
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#18B69B] transition-all duration-500" 
+                      style={{ width: `${Math.min(billingPercentage, 100)}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 flex justify-between text-sm">
+                    <span className="text-gray-500">
+                      {billingLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-[#18B69B]" />
+                      ) : (
+                        `${billingPercentage.toFixed(1)}%`
+                      )}
+                    </span>
+                    <span className="text-gray-500">
+                      Limit: ${billingData?.getBillingCycle?.limit.toFixed(2) || '0.00'}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -11,6 +11,11 @@ export const REGISTER_MUTATION = gql`
         email
         role
         balance
+        billingCycle {
+          current
+          limit
+          lastReset
+        }
       }
       error
     }
@@ -28,6 +33,11 @@ export const LOGIN_MUTATION = gql`
         email
         role
         balance
+        billingCycle {
+          current
+          limit
+          lastReset
+        }
       }
       error
     }
@@ -48,6 +58,11 @@ export const ME_QUERY = gql`
       email
       role
       balance
+      billingCycle {
+        current
+        limit
+        lastReset
+      }
       lastLogin
     }
   }
@@ -59,8 +74,28 @@ export const GET_BALANCE_QUERY = gql`
   }
 `;
 
+export const GET_BILLING_CYCLE_QUERY = gql`
+  query GetBillingCycle {
+    getBillingCycle {
+      current
+      limit
+      lastReset
+    }
+  }
+`;
+
 export const UPDATE_BALANCE_MUTATION = gql`
   mutation UpdateBalance($input: UpdateBalanceInput!) {
     updateBalance(input: $input)
+  }
+`;
+
+export const UPDATE_BILLING_LIMIT_MUTATION = gql`
+  mutation UpdateBillingLimit($input: UpdateBillingLimitInput!) {
+    updateBillingLimit(input: $input) {
+      current
+      limit
+      lastReset
+    }
   }
 `; 
