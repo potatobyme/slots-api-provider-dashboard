@@ -125,23 +125,23 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         </MenuItem>
 
         <SubMenu 
-          label="Billing" 
-          icon={<CircleDollarSign className="h-5 w-5" />}
-          isActive={pathname.includes("/dashboard/billing")}
+          label="Transactions" 
+          icon={<Receipt className="h-5 w-5" />}
+          isActive={pathname.includes("/dashboard/transactions")}
         >
           <MenuItem
-            href="/dashboard/billing/invoices"
+            href="/dashboard/transactions"
             icon={<Receipt className="h-4 w-4" />}
-            isActive={pathname === "/dashboard/billing/invoices"}
+            isActive={pathname === "/dashboard/transactions"}
           >
-            Invoices
+            Transactions
           </MenuItem>
           <MenuItem
-            href="/dashboard/billing/payments"
-            icon={<Receipt className="h-4 w-4" />}
-            isActive={pathname === "/dashboard/billing/payments"}
+            href="/dashboard/transactions/deposit-withdraw"
+            icon={<Wallet className="h-4 w-4" />}
+            isActive={pathname === "/dashboard/transactions/deposit-withdraw"}
           >
-            Payments
+            Deposit/Withdraw
           </MenuItem>
         </SubMenu>
 
@@ -151,37 +151,23 @@ export default function Sidebar({ isOpen }: SidebarProps) {
           isActive={pathname.includes("/dashboard/backoffice")}
         >
           <MenuItem
-            href="/dashboard/backoffice/transactions"
-            icon={<Receipt className="h-4 w-4" />}
-            isActive={pathname === "/dashboard/backoffice/transactions"}
-          >
-            Transactions
-          </MenuItem>
-          <MenuItem
-            href="/dashboard/backoffice/deposit-withdraw"
-            icon={<Wallet className="h-4 w-4" />}
-            isActive={pathname === "/dashboard/backoffice/deposit-withdraw"}
-          >
-            Deposit/Withdraw
-          </MenuItem>
-          <MenuItem
-            href="/dashboard/backoffice/players"
+            href="/dashboard/players"
             icon={<Users className="h-4 w-4" />}
-            isActive={pathname === "/dashboard/backoffice/players"}
+            isActive={pathname === "/dashboard/players"}
           >
             Players
           </MenuItem>
           <MenuItem
-            href="/dashboard/backoffice/games"
+            href="/dashboard/games"
             icon={<Gamepad2 className="h-4 w-4" />}
-            isActive={pathname === "/dashboard/backoffice/games"}
+            isActive={pathname === "/dashboard/games"}
           >
             Games
           </MenuItem>
           <MenuItem
-            href="/dashboard/backoffice/callback-log"
+            href="/dashboard/callback-log"
             icon={<PhoneCall className="h-4 w-4" />}
-            isActive={pathname === "/dashboard/backoffice/callback-log"}
+            isActive={pathname === "/dashboard/callback"}
           >
             Callback Log
           </MenuItem>
