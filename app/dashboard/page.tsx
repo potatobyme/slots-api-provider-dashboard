@@ -1,57 +1,99 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+"use client"
 
-// This would typically come from your backend
-const mockApis = [
-  { id: 1, name: "User Authentication API", type: "REST", status: "Active" },
-  { id: 2, name: "Product Catalog API", type: "GraphQL", status: "In Development" },
-  { id: 3, name: "Payment Processing API", type: "REST", status: "Active" },
-]
+import { CreditCard, Clock, AlertCircle } from "lucide-react"
 
-export default function Dashboard() {
+export default function DashboardPage() {
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold">Your APIs</h2>
-        <Link href="/dashboard/create-api">
-          <Button>Create New API</Button>
-        </Link>
+    <div className="p-4 sm:p-6 bg-[#F8F9FC]">
+      {/* Deposit Info Card */}
+      <div className="mb-6">
+        <h2 className="flex items-center gap-2 text-[15px] font-medium text-gray-900 mb-3">
+          <CreditCard className="h-4 w-4 text-[#18B69B]" />
+          Deposit Info
+        </h2>
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 rounded-lg bg-[#18B69B]/10 flex items-center justify-center flex-shrink-0">
+              <AlertCircle className="h-4 w-4 text-[#18B69B]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] text-gray-600 mb-2">Your balance deposit address - USDT</p>
+              <div className="flex items-center gap-2 bg-gray-50/75 rounded-lg p-2.5 break-all">
+                <code className="text-[13px] font-mono text-gray-900">0xa38b04735C44F5e8ca6EAbFb3611E068F323a31f</code>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {mockApis.map((api) => (
-              <tr key={api.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{api.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{api.type}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      api.status === "Active" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {api.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Link href={`/dashboard/api/${api.id}`} className="text-blue-600 hover:text-blue-900">
-                    View
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      {/* Billing Statistics */}
+      <div className="space-y-6">
+        <h2 className="flex items-center gap-2 text-[15px] font-medium text-gray-900">
+          <Clock className="h-4 w-4 text-[#18B69B]" />
+          Billing Statistics
+        </h2>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Billing Balance Card */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[13px] text-gray-600">Billing Balance ($)</span>
+              <button className="p-1 hover:bg-gray-50 rounded-lg transition-colors">
+                <svg className="h-4 w-4 text-gray-400" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="1" fill="currentColor" />
+                  <circle cx="12" cy="8" r="1" fill="currentColor" />
+                  <circle cx="4" cy="8" r="1" fill="currentColor" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-[#18B69B]/10 flex items-center justify-center">
+                <span className="text-lg font-semibold text-[#18B69B]">$</span>
+              </div>
+              <span className="text-2xl font-semibold text-gray-900">14.98</span>
+            </div>
+          </div>
+
+          {/* Current Billing Cycle Card */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[13px] text-gray-600">Current Billing Cycle ($)</span>
+              <button className="p-1 hover:bg-gray-50 rounded-lg transition-colors">
+                <svg className="h-4 w-4 text-gray-400" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="1" fill="currentColor" />
+                  <circle cx="12" cy="8" r="1" fill="currentColor" />
+                  <circle cx="4" cy="8" r="1" fill="currentColor" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Clock className="h-4 w-4 text-blue-500" />
+              </div>
+              <span className="text-2xl font-semibold text-gray-900">0</span>
+            </div>
+          </div>
+
+          {/* Billing Cycle Limit Card */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[13px] text-gray-600">Billing Cycle Limit Reached (%)</span>
+              <button className="p-1 hover:bg-gray-50 rounded-lg transition-colors">
+                <svg className="h-4 w-4 text-gray-400" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="1" fill="currentColor" />
+                  <circle cx="12" cy="8" r="1" fill="currentColor" />
+                  <circle cx="4" cy="8" r="1" fill="currentColor" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                <AlertCircle className="h-4 w-4 text-amber-500" />
+              </div>
+              <span className="text-2xl font-semibold text-gray-900">0%</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

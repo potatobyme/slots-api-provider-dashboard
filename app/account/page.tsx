@@ -157,43 +157,43 @@ export default function AccountPage() {
   return (
     <div className="p-6 bg-[#F8F9FC]">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
           <div className="h-8 w-8 rounded-lg bg-[#18B69B]/10 flex items-center justify-center">
             <Users className="h-4.5 w-4.5 text-[#18B69B]" />
           </div>
-          <h1 className="text-[#2D3359] text-2xl font-semibold">Account Management</h1>
+          <h1 className="text-[#2D3359] text-xl sm:text-2xl font-semibold">Account Management</h1>
         </div>
-        <div className="flex items-center gap-2 text-[#858796]">
-          <span className="text-sm">Overview</span>
-          <ChevronRight className="h-4 w-4" />
-          <span className="text-sm text-[#18B69B]">All Accounts</span>
+        <div className="flex items-center gap-2 text-[#858796] mt-2 sm:mt-0">
+          <span className="text-xs sm:text-sm">Overview</span>
+          <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="text-xs sm:text-sm text-[#18B69B]">All Accounts</span>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="relative flex-1 max-w-full sm:max-w-md">
           <input
             type="text"
             placeholder="Search by name, email or ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 h-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20 transition-all placeholder:text-gray-400"
+            className="w-full pl-11 pr-4 h-9 sm:h-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20 transition-all placeholder:text-gray-400"
           />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
-        <div className="flex items-center gap-3">
-          <button className="h-10 px-4 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 flex items-center gap-2 transition-all">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button className="flex-1 sm:flex-none h-9 sm:h-10 px-3 sm:px-4 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 flex items-center justify-center gap-2 transition-all">
             <Filter className="h-4 w-4" />
-            Filters
+            <span>Filters</span>
           </button>
           <button 
             onClick={() => setShowAgentForm(true)}
-            className="h-10 px-4 text-sm text-white bg-[#18B69B] rounded-lg hover:bg-[#18B69B]/90 flex items-center gap-2 transition-all shadow-sm hover:shadow"
+            className="flex-1 sm:flex-none h-9 sm:h-10 px-3 sm:px-4 text-sm text-white bg-[#18B69B] rounded-lg hover:bg-[#18B69B]/90 flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow"
           >
             <Plus className="h-4 w-4" />
-            Add Agent
+            <span>Add Agent</span>
           </button>
         </div>
       </div>
@@ -201,7 +201,7 @@ export default function AccountPage() {
       {/* Account Table */}
       <div className="bg-white border border-[#e3e6f0] rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full border-collapse min-w-[900px]">
             <thead>
               <tr className="bg-[#18B69B]/5 border-y border-[#e3e6f0]">
                 <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
@@ -350,20 +350,20 @@ export default function AccountPage() {
         </div>
 
         {/* Pagination */}
-        <div className="px-4 py-3 border-t border-gray-100 bg-white">
-          <div className="flex items-center justify-between">
-            <p className="text-[13px] text-gray-500">
+        <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-gray-100 bg-white">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-[13px] text-gray-500 order-2 sm:order-1">
               Showing <span className="font-medium">{sortedAccounts.length}</span> of <span className="font-medium">{accountData.length}</span> results
             </p>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end order-1 sm:order-2">
               <button 
-                className="px-2.5 py-1 text-[13px] text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 rounded border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
+                className="flex-1 sm:flex-none px-2.5 py-1 text-[13px] text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 rounded border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
                 disabled
               >
                 Previous
               </button>
               <button 
-                className="px-2.5 py-1 text-[13px] text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 rounded border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
+                className="flex-1 sm:flex-none px-2.5 py-1 text-[13px] text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 rounded border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
                 disabled
               >
                 Next
