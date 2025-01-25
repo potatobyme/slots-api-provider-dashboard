@@ -1,6 +1,6 @@
 "use client"
 
-import { Info, Copy, User, Key, Clock, Loader2 } from "lucide-react"
+import { Info, Copy, User, Key, Clock, Loader2, LayoutDashboard, DollarSign } from "lucide-react"
 import { useState } from "react"
 import { useQuery } from '@apollo/client'
 import { GET_BALANCE_QUERY, GET_BILLING_CYCLE_QUERY } from '@/lib/graphql/auth'

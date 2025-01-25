@@ -13,10 +13,20 @@ const typeDefs = gql`
     email: String!
     role: String!
     balance: Float!
+    currency: String!
+    callbackUrl: String
+    ggrPercentage: Float!
+    parentAgent: User
+    agentSettings: AgentSettings!
     billingCycle: BillingCycle!
+    status: String!
     lastLogin: String
     createdAt: String!
     updatedAt: String!
+  }
+
+  type AgentSettings {
+    profitShare: Float!
   }
 
   type ApiKey {
@@ -62,6 +72,12 @@ const typeDefs = gql`
     error: String
   }
 
+  type CreateAgentResponse {
+    success: Boolean!
+    agent: User
+    error: String
+  }
+
   input RegisterInput {
     username: String!
     email: String!
@@ -97,6 +113,28 @@ const typeDefs = gql`
     win: Float!
   }
 
+  input AgentSettingsInput {
+    profitShare: Float!
+  }
+
+  input CreateAgentInput {
+    username: String!
+    email: String!
+    password: String!
+    currency: String!
+    callbackUrl: String
+    ggrPercentage: Float!
+    agentSettings: AgentSettingsInput!
+  }
+
+  input UpdateAgentInput {
+    currency: String
+    callbackUrl: String
+    ggrPercentage: Float
+    agentSettings: AgentSettingsInput
+    status: String
+  }
+
   type Query {
     me: User
     getBalance: Float!
@@ -105,6 +143,9 @@ const typeDefs = gql`
     getSlots: [SlotMachine!]!
     getSlot(id: ID!): SlotMachine
     getSlotStats(id: ID!): SlotMetrics!
+    getAgents: [User!]!
+    getAgent(id: ID!): User
+    getSubAgents: [User!]!
   }
 
   type Mutation {
@@ -118,6 +159,12 @@ const typeDefs = gql`
     updateBillingLimit(input: UpdateBillingLimitInput!): BillingCycle!
     createSlot(input: CreateSlotInput!): SlotMachine!
     updateSlotMetrics(id: ID!, input: UpdateSlotMetricsInput!): SlotMetrics!
+    createAgent(input: CreateAgentInput!): CreateAgentResponse!
+    updateAgent(id: ID!, input: UpdateAgentInput!): CreateAgentResponse!
+    suspendAgent(id: ID!): Boolean!
+    activateAgent(id: ID!): Boolean!
+    updateAgentBalance(agentId: ID!, amount: Float!): Float!
+    toggleAgentStatus(agentId: ID!): User!
   }
 `;
 

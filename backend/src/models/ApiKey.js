@@ -1,14 +1,10 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 
 const apiKeySchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
     name: {
         type: String,
-        required: [true, 'Please add a name for the API key'],
+        required: [true, 'Please add a name'],
         trim: true
     },
     key: {
@@ -16,9 +12,14 @@ const apiKeySchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     status: {
         type: String,
-        enum: ['active', 'disabled'],
+        enum: ['active', 'inactive'],
         default: 'active'
     },
     lastUsed: {
@@ -27,19 +28,33 @@ const apiKeySchema = new mongoose.Schema({
     }
 }, {
     timestamps: true,
-    toJSON: { 
+    toJSON: {
         transform: function(doc, ret) {
-            ret.createdAt = ret.createdAt.getTime().toString();
-            ret.lastUsed = ret.lastUsed ? ret.lastUsed.getTime().toString() : null;
+            ret.id = ret._id.toString();
+            delete ret._id;
+            delete ret.__v;
             return ret;
         }
     }
 });
 
-// Generate a unique API key
-apiKeySchema.statics.generateApiKey = function(prefix = 'sk_live_') {
-    const randomBytes = require('crypto').randomBytes(32);
-    return prefix + randomBytes.toString('base64').replace(/[^a-zA-Z0-9]/g, '');
+// Generate API key before saving
+apiKeySchema.pre('save', function(next) {
+    if (!this.isModified('key')) {
+        next();
+        return;
+    }
+
+    // Generate a random API key
+    const buffer = crypto.randomBytes(32);
+    this.key = buffer.toString('hex');
+    next();
+});
+
+// Static method to generate API key
+apiKeySchema.statics.generateApiKey = function() {
+    const buffer = crypto.randomBytes(32);
+    return buffer.toString('hex');
 };
 
 const ApiKey = mongoose.model('ApiKey', apiKeySchema);

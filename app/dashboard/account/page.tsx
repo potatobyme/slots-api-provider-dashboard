@@ -1,518 +1,617 @@
 "use client"
 
 import { useState } from "react"
+import { useQuery, useMutation } from "@apollo/client"
 import { 
-  Search, 
-  Eye,
-  Copy, 
-  MoreHorizontal,
-  ArrowUpDown,
-  Filter,
-  CheckCircle2,
+  User,
+  Settings,
   Plus,
   X,
-  Save,
-  User,
-  ChevronRight,
-  FileText,
+  Globe,
+  Percent,
+  Calendar,
   Users,
-  Hash,
-  Mail,
-  Clock,
   DollarSign,
-  Shield
+  Share2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Wallet,
+  Mail,
+  Link,
+  Shield,
+  Power,
+  RefreshCw,
+  MoreVertical,
+  Search,
+  Filter
 } from "lucide-react"
+import { gql } from "@apollo/client"
 
-interface AccountData {
-  id: string
-  name: string
-  email: string
-  created: string
-  billingBalance: number
-  billingCycleLimit: number
-  apiAccess: boolean
-  paymentAddress: string
-}
-
-interface AgentFormData {
-  email: string
-  password: string
-  agentCode: string
-  ggrToken: string
-  agentSecret: string
-  agentCurrency: string
-  callbackUrl: string
-  status: boolean
-}
-
-const accountData: AccountData[] = [
-  {
-    id: "83",
-    name: "Doubleit",
-    email: "Doubleitcorp@gmail.com",
-    created: "01/05/2025, 02:22 PM UTC",
-    billingBalance: 14.98,
-    billingCycleLimit: 16.48,
-    apiAccess: true,
-    paymentAddress: "0xa38b04735C44F5e8ca6EAbFb3611E068F323a31f"
-  },
-  {
-    id: "84",
-    name: "Betmaster",
-    email: "betmaster@gmail.com",
-    created: "01/06/2025, 03:15 PM UTC",
-    billingBalance: 25.75,
-    billingCycleLimit: 30.00,
-    apiAccess: true,
-    paymentAddress: "0xb42c04845C44F5e8ca6EAbFb3611E068F323b42d"
-  },
-  {
-    id: "85",
-    name: "GameHub",
-    email: "gamehub@gmail.com",
-    created: "01/07/2025, 11:30 AM UTC",
-    billingBalance: 8.25,
-    billingCycleLimit: 20.00,
-    apiAccess: false,
-    paymentAddress: "0xc51d14935C44F5e8ca6EAbFb3611E068F323c51d"
-  },
-  {
-    id: "86",
-    name: "SlotKings",
-    email: "slotkings@gmail.com",
-    created: "01/08/2025, 09:45 AM UTC",
-    billingBalance: 32.50,
-    billingCycleLimit: 40.00,
-    apiAccess: true,
-    paymentAddress: "0xd60e25a45C44F5e8ca6EAbFb3611E068F323d60e"
-  },
-  {
-    id: "87",
-    name: "CasinoPlus",
-    email: "casinoplus@gmail.com",
-    created: "01/09/2025, 04:20 PM UTC",
-    billingBalance: 18.30,
-    billingCycleLimit: 25.00,
-    apiAccess: false,
-    paymentAddress: "0xe7f136b55C44F5e8ca6EAbFb3611E068F323e7f1"
+const GET_AGENTS = gql`
+  query GetAgents {
+    getAgents {
+      id
+      username
+      email
+      currency
+      callbackUrl
+      ggrPercentage
+      balance
+      agentSettings {
+        profitShare
+      }
+      status
+      createdAt
+    }
   }
-]
+`;
 
-const initialAgentForm: AgentFormData = {
-  email: "",
-  password: "",
-  agentCode: "",
-  ggrToken: "",
-  agentSecret: "",
-  agentCurrency: "USD",
-  callbackUrl: "",
-  status: true
-}
+const CREATE_AGENT = gql`
+  mutation CreateAgent($input: CreateAgentInput!) {
+    createAgent(input: $input) {
+      success
+      agent {
+        id
+        username
+        email
+      }
+      error
+    }
+  }
+`;
+
+const UPDATE_AGENT_BALANCE = gql`
+  mutation UpdateAgentBalance($agentId: ID!, $amount: Float!) {
+    updateAgentBalance(agentId: $agentId, amount: $amount)
+  }
+`;
+
+const TOGGLE_AGENT_STATUS = gql`
+  mutation ToggleAgentStatus($agentId: ID!) {
+    toggleAgentStatus(agentId: $agentId) {
+      id
+      status
+    }
+  }
+`;
+
+const GET_BALANCE = gql`
+  query GetBalance {
+    getBalance
+  }
+`;
 
 export default function AccountPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showAgentForm, setShowAgentForm] = useState(false)
-  const [agentForm, setAgentForm] = useState<AgentFormData>(initialAgentForm)
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof AccountData
-    direction: "asc" | "desc"
-  } | null>(null)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showBalanceModal, setShowBalanceModal] = useState(false)
+  const [selectedAgent, setSelectedAgent] = useState<any>(null)
+  const [amount, setAmount] = useState('')
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    currency: 'USD',
+    callbackUrl: '',
+    ggrPercentage: 0,
+    agentSettings: {
+      profitShare: 0
+    }
+  })
 
-  const handleSort = (key: keyof AccountData) => {
-    setSortConfig(current => ({
-      key,
-      direction: current?.key === key && current.direction === "asc" ? "desc" : "asc"
-    }))
-  }
+  const { data, loading, refetch } = useQuery(GET_AGENTS)
+  const [createAgent] = useMutation(CREATE_AGENT)
+  const [updateAgentBalance] = useMutation(UPDATE_AGENT_BALANCE)
+  const [toggleAgentStatus] = useMutation(TOGGLE_AGENT_STATUS)
+  const { data: balanceData } = useQuery(GET_BALANCE)
 
-  const handleAgentSubmit = (e: React.FormEvent) => {
+  const handleCreateAgent = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log(agentForm)
-    setShowAgentForm(false)
-    setAgentForm(initialAgentForm)
+    try {
+      const { data } = await createAgent({
+        variables: {
+          input: formData
+        }
+      })
+
+      if (data?.createAgent.success) {
+        setShowCreateModal(false)
+        refetch()
+      }
+    } catch (error) {
+      console.error('Failed to create agent:', error)
+    }
   }
 
-  const filteredAccounts = accountData.filter(account => {
-    const searchLower = searchQuery.toLowerCase()
-    return (
-      account.name.toLowerCase().includes(searchLower) ||
-      account.email.toLowerCase().includes(searchLower) ||
-      account.id.toLowerCase().includes(searchLower)
-    )
-  })
+  const handleUpdateBalance = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      await updateAgentBalance({
+        variables: {
+          agentId: selectedAgent.id,
+          amount: parseFloat(amount)
+        },
+        refetchQueries: [
+          { query: GET_AGENTS },
+          { query: GET_BALANCE }
+        ]
+      })
+      setShowBalanceModal(false)
+      setSelectedAgent(null)
+      setAmount('')
+    } catch (error) {
+      console.error('Failed to update balance:', error)
+    }
+  }
 
-  const sortedAccounts = [...filteredAccounts].sort((a, b) => {
-    if (!sortConfig?.key) return 0
-    
-    if (a[sortConfig.key] < b[sortConfig.key]) {
-      return sortConfig.direction === "asc" ? -1 : 1
+  const handleToggleStatus = async (agent: any) => {
+    try {
+      await toggleAgentStatus({
+        variables: {
+          agentId: agent.id
+        }
+      })
+      refetch()
+    } catch (error) {
+      console.error('Failed to toggle status:', error)
     }
-    if (a[sortConfig.key] > b[sortConfig.key]) {
-      return sortConfig.direction === "asc" ? 1 : -1
-    }
-    return 0
-  })
+  }
 
   return (
-    <div className="p-6 bg-[#F8F9FC]">
+    <div className="p-4 sm:p-6 bg-[#F8F9FC]">
       {/* Header */}
-      <div className="mb-4 sm:mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
           <div className="h-8 w-8 rounded-lg bg-[#18B69B]/10 flex items-center justify-center">
             <Users className="h-4.5 w-4.5 text-[#18B69B]" />
           </div>
-          <h1 className="text-[#2D3359] text-xl sm:text-2xl font-semibold">Account Management</h1>
+          <h1 className="text-[#2D3359] text-xl sm:text-2xl font-semibold">Agent Management</h1>
         </div>
-        <div className="flex items-center gap-2 text-[#858796] mt-2 sm:mt-0">
-          <span className="text-xs sm:text-sm">Overview</span>
-          <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="text-xs sm:text-sm text-[#18B69B]">All Accounts</span>
+        <div className="flex items-center gap-2 text-[#858796]">
+          <span className="text-xs sm:text-sm">Manage your agents and their balances</span>
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-        <div className="relative flex-1 max-w-full sm:max-w-md">
-          <input
-            type="text"
-            placeholder="Search by name, email or ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 h-9 sm:h-10 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20 transition-all placeholder:text-gray-400"
-          />
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      {/* Balance Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center">
+              <Users className="h-4 w-4 text-blue-500" />
+            </div>
+            <ArrowUpDown className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-sm text-gray-600">Total Agents</p>
+            <p className="text-xl font-semibold text-gray-900">{data?.getAgents.length || 0}</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button className="flex-1 sm:flex-none h-9 sm:h-10 px-3 sm:px-4 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 flex items-center justify-center gap-2 transition-all">
+
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
+              <Wallet className="h-4 w-4 text-green-500" />
+            </div>
+            <ArrowUp className="h-4 w-4 text-green-500" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-sm text-gray-600">Total Balance</p>
+            <p className="text-xl font-semibold text-gray-900">
+              ${data?.getAgents.reduce((sum: number, agent: any) => sum + agent.balance, 0).toFixed(2) || '0.00'}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="h-8 w-8 rounded-full bg-purple-50 flex items-center justify-center">
+              <Shield className="h-4 w-4 text-purple-500" />
+            </div>
+            <Power className="h-4 w-4 text-green-500" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-sm text-gray-600">Active Agents</p>
+            <p className="text-xl font-semibold text-gray-900">
+              {data?.getAgents.filter((agent: any) => agent.status === 'active').length || 0}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center">
+              <Percent className="h-4 w-4 text-orange-500" />
+            </div>
+            <RefreshCw className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-sm text-gray-600">Avg. GGR %</p>
+            <p className="text-xl font-semibold text-gray-900">
+              {data?.getAgents.length 
+                ? (data.getAgents.reduce((sum: number, agent: any) => sum + agent.ggrPercentage, 0) / data.getAgents.length).toFixed(1)
+                : '0.0'}%
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search agents..."
+              className="w-64 h-9 pl-9 pr-4 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          </div>
+          <button className="h-9 px-3 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center gap-2">
             <Filter className="h-4 w-4" />
-            <span>Filters</span>
-          </button>
-          <button 
-            onClick={() => setShowAgentForm(true)}
-            className="flex-1 sm:flex-none h-9 sm:h-10 px-3 sm:px-4 text-sm text-white bg-[#18B69B] rounded-lg hover:bg-[#18B69B]/90 flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Add Agent</span>
+            <span>Filter</span>
           </button>
         </div>
+        <button 
+          onClick={() => setShowCreateModal(true)}
+          className="h-9 px-3 text-sm text-white bg-[#18B69B] rounded-lg hover:bg-[#18B69B]/90 flex items-center gap-2 transition-all shadow-sm hover:shadow"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Add Agent</span>
+        </button>
       </div>
 
-      {/* Account Table */}
-      <div className="bg-white border border-[#e3e6f0] rounded-lg shadow-sm overflow-hidden">
+      {/* Agents Table */}
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse min-w-[900px]">
+          <table className="w-full border-collapse min-w-[1000px]">
             <thead>
-              <tr className="bg-[#18B69B]/5 border-y border-[#e3e6f0]">
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <button 
-                    className="flex items-center gap-1.5 hover:text-[#18B69B]/80"
-                    onClick={() => handleSort("id")}
-                  >
-                    <Hash className="h-3.5 w-3.5" />
-                    ID
-                    <ArrowUpDown className="h-3 w-3 opacity-50" />
-                  </button>
-                </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <button 
-                    className="flex items-center gap-1.5 hover:text-[#18B69B]/80"
-                    onClick={() => handleSort("name")}
-                  >
+              <tr className="bg-[#18B69B]/5 border-y border-gray-200">
+                <th className="text-left whitespace-nowrap px-4 py-3 w-[220px]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
                     <User className="h-3.5 w-3.5" />
-                    Name
-                    <ArrowUpDown className="h-3 w-3 opacity-50" />
-                  </button>
+                    Agent
+                  </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+                <th className="text-left whitespace-nowrap px-4 py-3 w-[200px]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
                     <Mail className="h-3.5 w-3.5" />
                     Email
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
-                    Created
+                <th className="text-left whitespace-nowrap px-4 py-3 w-[100px]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <DollarSign className="h-3.5 w-3.5" />
+                    Currency
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <DollarSign className="h-3.5 w-3.5" />
+                <th className="text-left whitespace-nowrap px-4 py-3 w-[120px]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Wallet className="h-3.5 w-3.5" />
                     Balance
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <DollarSign className="h-3.5 w-3.5" />
-                    Limit
+                <th className="text-left whitespace-nowrap px-4 py-3 w-[100px]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Percent className="h-3.5 w-3.5" />
+                    GGR %
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+                <th className="text-left whitespace-nowrap px-4 py-3 w-[120px]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Share2 className="h-3.5 w-3.5" />
+                    Profit Share
+                  </div>
+                </th>
+                <th className="text-left whitespace-nowrap px-4 py-3 w-[120px]">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
                     <Shield className="h-3.5 w-3.5" />
-                    API
+                    Status
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5" />
-                    Payment Address
-                  </div>
-                </th>
-                <th className="h-11 px-4 text-right text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center justify-end gap-1.5">
+                <th className="text-right whitespace-nowrap px-4 py-3 w-[120px]">
+                  <div className="flex items-center justify-end gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Settings className="h-3.5 w-3.5" />
                     Actions
                   </div>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {sortedAccounts.map((account) => (
-                <tr key={account.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-[#18B69B]/5 text-[#18B69B]">
-                      {account.id}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center">
-                      <div className="h-7 w-7 flex-shrink-0 rounded-full bg-[#18B69B]/5 flex items-center justify-center">
-                        <User className="h-3.5 w-3.5 text-[#18B69B]" />
-                      </div>
-                      <div className="ml-2.5">
-                        <div className="text-[13px] font-medium text-gray-900">{account.name}</div>
-                      </div>
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500 min-h-[200px]">
+                    <div className="flex items-center justify-center gap-2">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Loading agents...
                     </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-[13px] text-gray-600">{account.email}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-[13px] text-gray-600">{account.created}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-[13px] font-medium text-gray-900">
-                      ${account.billingBalance.toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-[13px] font-medium text-gray-900">
-                      ${account.billingCycleLimit.toFixed(2)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    {account.apiAccess ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-[#18B69B] bg-[#18B69B]/5 rounded-md">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Active
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-red-600 bg-red-50/50 rounded-md">
-                        <span className="h-1 w-1 rounded-full bg-red-500" />
-                        Disabled
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5 max-w-[200px]">
-                      <code className="px-2 py-0.5 text-[11px] font-mono text-gray-600 bg-gray-50/75 rounded truncate flex-1">
-                        {account.paymentAddress}
-                      </code>
-                      <div className="flex items-center gap-0.5 flex-shrink-0">
-                        <button 
-                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-all"
-                          title="Copy address"
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </button>
-                        <button 
-                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-all"
-                          title="View details"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button 
-                      className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-all group"
-                      title="More options"
-                    >
-                      <MoreHorizontal className="h-3.5 w-3.5 group-hover:scale-105 transition-transform" />
-                    </button>
                   </td>
                 </tr>
-              ))}
+              ) : data?.getAgents.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500 min-h-[200px]">
+                    <div className="flex flex-col items-center gap-2">
+                      <Users className="h-8 w-8 text-gray-400" />
+                      <p>No agents found</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                data?.getAgents.map((agent: any) => (
+                  <tr key={agent.id} className="hover:bg-gray-50/50 transition-colors min-h-[64px]">
+                    <td className="px-4 py-3 w-[220px]">
+                      <div className="flex items-center">
+                        <div className="h-8 w-8 flex-shrink-0 rounded-full bg-[#18B69B]/5 flex items-center justify-center">
+                          <User className="h-4 w-4 text-[#18B69B]" />
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-sm font-medium text-gray-900 truncate max-w-[150px]">{agent.username}</div>
+                          <div className="text-xs text-gray-500">ID: {agent.id}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 w-[200px]">
+                      <div className="flex items-center gap-1.5">
+                        <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm text-gray-600 truncate max-w-[150px]">{agent.email}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 w-[100px]">
+                      <div className="flex items-center gap-1.5">
+                        <DollarSign className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm text-gray-900">{agent.currency}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 w-[120px]">
+                      <div className="flex items-center gap-1.5">
+                        <Wallet className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-900">${agent.balance.toFixed(2)}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 w-[100px]">
+                      <div className="flex items-center gap-1.5">
+                        <Percent className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm text-gray-900">{agent.ggrPercentage}%</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 w-[120px]">
+                      <div className="flex items-center gap-1.5">
+                        <Share2 className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <span className="text-sm text-gray-900">{agent.agentSettings.profitShare}%</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 w-[120px]">
+                      <span className={`inline-flex items-center justify-center w-[90px] h-[26px] gap-1.5 text-xs font-medium rounded-full ${
+                        agent.status === 'active' 
+                          ? 'text-green-700 bg-green-50 border border-green-200' 
+                          : 'text-red-700 bg-red-50 border border-red-200'
+                      }`}>
+                        <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
+                          agent.status === 'active' ? 'bg-green-500' : 'bg-red-500'
+                        }`} />
+                        {agent.status.charAt(0).toUpperCase() + agent.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 w-[120px]">
+                      <div className="flex items-center justify-end gap-2 h-[32px]">
+                        <button
+                          onClick={() => {
+                            setSelectedAgent(agent)
+                            setShowBalanceModal(true)
+                          }}
+                          className="p-1 text-gray-400 hover:text-[#18B69B] hover:bg-[#18B69B]/5 rounded transition-colors"
+                          title="Update Balance"
+                        >
+                          <Wallet className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleStatus(agent)}
+                          className={`p-1 rounded transition-colors ${
+                            agent.status === 'active'
+                              ? 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                              : 'text-gray-400 hover:text-green-500 hover:bg-green-50'
+                          }`}
+                          title={agent.status === 'active' ? 'Disable Agent' : 'Enable Agent'}
+                        >
+                          <Power className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-colors"
+                          title="More Options"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-
-        {/* Pagination */}
-        <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-gray-100 bg-white">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-[13px] text-gray-500 order-2 sm:order-1">
-              Showing <span className="font-medium">{sortedAccounts.length}</span> of <span className="font-medium">{accountData.length}</span> results
-            </p>
-            <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end order-1 sm:order-2">
-              <button 
-                className="flex-1 sm:flex-none px-2.5 py-1 text-[13px] text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 rounded border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
-                disabled
-              >
-                Previous
-              </button>
-              <button 
-                className="flex-1 sm:flex-none px-2.5 py-1 text-[13px] text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 rounded border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
-                disabled
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Agent Form Modal */}
-      {showAgentForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-auto relative">
-            <div className="flex items-center justify-between p-4 border-b">
+      {/* Create Agent Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+            <div className="flex items-center justify-between p-4 border-b border-[#e3e6f0]">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Add New Agent</h2>
-                <p className="text-sm text-gray-500 mt-1">Fill in the information to create a new agent</p>
+                <h2 className="text-lg font-semibold text-[#5a5c69]">Create New Agent</h2>
+                <p className="text-sm text-[#858796] mt-1">Enter agent details and settings</p>
               </div>
               <button 
-                onClick={() => setShowAgentForm(false)}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600"
+                onClick={() => setShowCreateModal(false)}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 text-[#858796]" />
               </button>
             </div>
-            <form onSubmit={handleAgentSubmit} className="p-4">
-              <div className="space-y-4">
-                {/* Email & Password Row */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="Enter email address"
-                      value={agentForm.email}
-                      onChange={(e) => setAgentForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input
-                      type="password"
-                      required
-                      placeholder="Enter password"
-                      value={agentForm.password}
-                      onChange={(e) => setAgentForm(prev => ({ ...prev, password: e.target.value }))}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
-                    />
-                  </div>
-                </div>
-
-                {/* Agent Username & Currency Row */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Agent Username</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter agent Username"
-                      value={agentForm.agentCode}
-                      onChange={(e) => setAgentForm(prev => ({ ...prev, agentCode: e.target.value }))}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Agent Currency</label>
-                    <select
-                      value={agentForm.agentCurrency}
-                      onChange={(e) => setAgentForm(prev => ({ ...prev, agentCurrency: e.target.value }))}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] bg-white"
-                    >
-                      <option value="USD">USD - US Dollar</option>
-                      <option value="EUR">EUR - Euro</option>
-                      <option value="GBP">GBP - British Pound</option>
-                      <option value="JPY">JPY - Japanese Yen</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* GGR Amount & Agent Secret Row */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">GGR Amount</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter GGR Amount"
-                      value={agentForm.ggrToken}
-                      onChange={(e) => setAgentForm(prev => ({ ...prev, ggrToken: e.target.value }))}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Agent Secret</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter agent secret"
-                      value={agentForm.agentSecret}
-                      onChange={(e) => setAgentForm(prev => ({ ...prev, agentSecret: e.target.value }))}
-                      className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
-                    />
-                  </div>
-                </div>
-
-                {/* Callback URL */}
+            <form onSubmit={handleCreateAgent} className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Callback URL</label>
+                  <label className="block text-sm font-medium text-[#5a5c69] mb-1">Username</label>
                   <input
-                    type="url"
+                    type="text"
                     required
-                    placeholder="Enter callback URL"
-                    value={agentForm.callbackUrl}
-                    onChange={(e) => setAgentForm(prev => ({ ...prev, callbackUrl: e.target.value }))}
-                    className="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#18B69B]/20 focus:border-[#18B69B] placeholder:text-gray-400"
+                    value={formData.username}
+                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    className="w-full px-3 py-2 text-sm border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-[#5a5c69] mb-1">Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full px-3 py-2 text-sm border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
                   />
                 </div>
 
-                {/* Active Status */}
                 <div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={agentForm.status}
-                      onChange={(e) => setAgentForm(prev => ({ ...prev, status: e.target.checked }))}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#18B69B]/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#18B69B]"></div>
-                    <span className="ml-3 text-sm font-medium text-gray-700">Active Status</span>
-                  </label>
+                  <label className="block text-sm font-medium text-[#5a5c69] mb-1">Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    className="w-full px-3 py-2 text-sm border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#5a5c69] mb-1">Currency</label>
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                    className="w-full px-3 py-2 text-sm border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
+                  >
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="TRY">TRY</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-[#5a5c69] mb-1">Callback URL</label>
+                  <input
+                    type="url"
+                    value={formData.callbackUrl}
+                    onChange={(e) => setFormData({...formData, callbackUrl: e.target.value})}
+                    className="w-full px-3 py-2 text-sm border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
+                    placeholder="https://"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#5a5c69] mb-1">GGR Percentage</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.ggrPercentage}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      ggrPercentage: Number(e.target.value)
+                    })}
+                    className="w-full px-3 py-2 text-sm border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#5a5c69] mb-1">Profit Share (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.agentSettings.profitShare}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      agentSettings: {
+                        ...formData.agentSettings,
+                        profitShare: Number(e.target.value)
+                      }
+                    })}
+                    className="w-full px-3 py-2 text-sm border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
+                  />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-[#e3e6f0]">
                 <button
                   type="button"
-                  onClick={() => setShowAgentForm(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg transition-colors"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 text-sm text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-[#18B69B] hover:bg-[#18B69B]/90 rounded-lg transition-all shadow-sm hover:shadow flex items-center gap-2"
+                  className="px-4 py-2 text-sm text-white bg-[#18B69B] rounded hover:bg-[#18B69B]/90 transition-colors"
                 >
-                  <Save className="h-4 w-4" />
-                  Save Agent
+                  Create Agent
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Balance Update Modal */}
+      {showBalanceModal && selectedAgent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div className="flex items-center justify-between p-4 border-b border-[#e3e6f0]">
+              <div>
+                <h2 className="text-lg font-semibold text-[#5a5c69]">Update Agent Balance</h2>
+                <p className="text-sm text-[#858796] mt-1">
+                  Your balance: ${balanceData?.getBalance.toFixed(2) || '0.00'}
+                </p>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowBalanceModal(false)
+                  setSelectedAgent(null)
+                  setAmount('')
+                }}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-5 w-5 text-[#858796]" />
+              </button>
+            </div>
+            <form onSubmit={handleUpdateBalance} className="p-4">
+              <div>
+                <label className="block text-sm font-medium text-[#5a5c69] mb-1">Amount</label>
+                <input
+                  type="number"
+                  required
+                  step="0.01"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
+                  placeholder="Enter amount (use negative for withdrawal)"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-[#e3e6f0]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowBalanceModal(false)
+                    setSelectedAgent(null)
+                    setAmount('')
+                  }}
+                  className="px-4 py-2 text-sm text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm text-white bg-[#18B69B] rounded hover:bg-[#18B69B]/90 transition-colors"
+                >
+                  Update Balance
                 </button>
               </div>
             </form>

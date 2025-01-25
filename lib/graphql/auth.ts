@@ -9,13 +9,15 @@ export const REGISTER_MUTATION = gql`
         id
         username
         email
-        role
         balance
+        role
+        status
         billingCycle {
           current
           limit
           lastReset
         }
+        createdAt
       }
       error
     }
@@ -31,13 +33,15 @@ export const LOGIN_MUTATION = gql`
         id
         username
         email
-        role
         balance
+        role
+        status
         billingCycle {
           current
           limit
           lastReset
         }
+        createdAt
       }
       error
     }
@@ -56,14 +60,15 @@ export const ME_QUERY = gql`
       id
       username
       email
-      role
       balance
+      role
+      status
       billingCycle {
         current
         limit
         lastReset
       }
-      lastLogin
+      createdAt
     }
   }
 `;

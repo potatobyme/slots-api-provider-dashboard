@@ -24,15 +24,49 @@ const userSchema = new mongoose.Schema({
         minlength: 6,
         select: false
     },
+    role: {
+        type: String,
+        enum: ['user', 'agent', 'admin'],
+        default: 'user'
+    },
     balance: {
         type: Number,
         default: 1000,
         min: 0
     },
-    role: {
+    currency: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
+        enum: ['USD', 'EUR', 'TRY'],
+        default: 'USD'
+    },
+    callbackUrl: {
+        type: String,
+        trim: true,
+        validate: {
+            validator: function(v) {
+                return !v || /^https?:\/\/.+/.test(v);
+            },
+            message: 'Callback URL must be a valid URL'
+        }
+    },
+    ggrPercentage: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
+    parentAgent: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    agentSettings: {
+        profitShare: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 100
+        }
     },
     billingCycle: {
         current: {
@@ -48,9 +82,14 @@ const userSchema = new mongoose.Schema({
             default: Date.now
         }
     },
+    status: {
+        type: String,
+        enum: ['active', 'suspended', 'blocked'],
+        default: 'active'
+    },
     lastLogin: {
         type: Date,
-        default: Date.now
+        default: null
     },
     tokenVersion: {
         type: Number,
@@ -64,7 +103,16 @@ const userSchema = new mongoose.Schema({
     passwordResetToken: String,
     passwordResetExpires: Date
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: {
+        transform: function(doc, ret) {
+            ret.id = ret._id.toString();
+            delete ret._id;
+            delete ret.__v;
+            delete ret.password;
+            return ret;
+        }
+    }
 });
 
 // Encrypt password
@@ -139,4 +187,6 @@ userSchema.methods.createPasswordResetToken = function() {
     return resetToken;
 };
 
-module.exports = mongoose.model('User', userSchema); 
+const User = mongoose.model('User', userSchema);
+
+module.exports = User; 
