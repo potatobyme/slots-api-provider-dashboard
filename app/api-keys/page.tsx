@@ -3,26 +3,15 @@
 import { useState } from "react"
 import { 
   Search, 
-  ChevronDown, 
-  Eye,
-  ArrowUpDown,
   ChevronRight,
-  Calendar,
-  Filter,
-  Copy,
-  MoreVertical,
-  RefreshCw,
-  Download,
-  FileText,
-  Key,
-  Hash,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
+  ArrowUpDown,
   Plus,
   X,
-  Trash2
+  Trash2,
+  Hash,
+  User,
+  Shield,
+  Copy
 } from "lucide-react"
 
 interface ApiKey {
@@ -99,7 +88,7 @@ export default function ApiKeysPage() {
       {/* Header */}
       <div className="mb-5">
         <h1 className="text-[#5a5c69] text-2xl font-normal tracking-[-0.5px] flex items-center gap-2">
-          <Key className="h-6 w-6 text-[#18B69B]" />
+          <Hash className="h-6 w-6 text-[#18B69B]" />
           API Keys
           <ChevronRight className="h-5 w-5 text-[#858796]" />
           <span className="text-base text-[#858796] font-light">Management</span>
@@ -161,34 +150,34 @@ export default function ApiKeysPage() {
                 </th>
                 <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
                   <div className="flex items-center gap-1.5">
-                    <Key className="h-3.5 w-3.5" />
+                    <Hash className="h-3.5 w-3.5" />
                     Name
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
                 <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
                   <div className="flex items-center gap-1.5">
-                    <Key className="h-3.5 w-3.5" />
+                    <Hash className="h-3.5 w-3.5" />
                     API Key
                   </div>
                 </th>
                 <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
                   <div className="flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
+                    <Hash className="h-3.5 w-3.5" />
                     Created
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
                 <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
                   <div className="flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
+                    <Hash className="h-3.5 w-3.5" />
                     Last Used
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
                 <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <Hash className="h-3.5 w-3.5" />
                     Status
                   </div>
                 </th>
@@ -219,13 +208,13 @@ export default function ApiKeysPage() {
                   </td>
                   <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
-                      <Key className="h-3.5 w-3.5 text-[#858796]" />
+                      <Hash className="h-3.5 w-3.5 text-[#858796]" />
                       {key.name}
                     </div>
                   </td>
                   <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
-                      <Key className="h-3.5 w-3.5 text-[#858796]" />
+                      <Hash className="h-3.5 w-3.5 text-[#858796]" />
                       {key.key}
                       <button 
                         onClick={() => handleCopyKey(key.key)}
@@ -237,13 +226,13 @@ export default function ApiKeysPage() {
                   </td>
                   <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-[#858796]" />
+                      <Hash className="h-3.5 w-3.5 text-[#858796]" />
                       {key.created}
                     </div>
                   </td>
                   <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-[#858796]" />
+                      <Hash className="h-3.5 w-3.5 text-[#858796]" />
                       {key.lastUsed}
                     </div>
                   </td>

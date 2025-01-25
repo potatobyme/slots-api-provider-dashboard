@@ -9,7 +9,6 @@ import {
   ArrowUpDown,
   Filter,
   CheckCircle2,
-  ChevronDown,
   Plus,
   X,
   Save,
@@ -143,6 +142,18 @@ export default function AccountPage() {
     )
   })
 
+  const sortedAccounts = [...filteredAccounts].sort((a, b) => {
+    if (!sortConfig?.key) return 0
+    
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === "asc" ? -1 : 1
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === "asc" ? 1 : -1
+    }
+    return 0
+  })
+
   return (
     <div className="p-6 bg-[#F8F9FC]">
       {/* Header */}
@@ -257,7 +268,7 @@ export default function AccountPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredAccounts.map((account) => (
+              {sortedAccounts.map((account) => (
                 <tr key={account.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-[#18B69B]/5 text-[#18B69B]">
@@ -342,7 +353,7 @@ export default function AccountPage() {
         <div className="px-4 py-3 border-t border-gray-100 bg-white">
           <div className="flex items-center justify-between">
             <p className="text-[13px] text-gray-500">
-              Showing <span className="font-medium">{filteredAccounts.length}</span> of <span className="font-medium">{accountData.length}</span> results
+              Showing <span className="font-medium">{sortedAccounts.length}</span> of <span className="font-medium">{accountData.length}</span> results
             </p>
             <div className="flex items-center gap-1.5">
               <button 

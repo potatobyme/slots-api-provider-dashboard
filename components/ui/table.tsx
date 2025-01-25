@@ -2,17 +2,21 @@
 
 import * as React from "react"
 
-const Table = React.forwardRef<
-  HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <table
-    ref={ref}
-    className="w-full caption-bottom text-sm"
-    {...props}
-  />
-))
-Table.displayName = "Table"
+interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
+  // Remove className if not used
+}
+
+export const Table = React.forwardRef<HTMLTableElement, TableProps>(
+  ({ ...props }, ref) => (
+    <div className="relative w-full overflow-auto">
+      <table
+        ref={ref}
+        className="w-full caption-bottom text-sm"
+        {...props}
+      />
+    </div>
+  )
+)
 
 const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
@@ -71,7 +75,6 @@ const TableCell = React.forwardRef<
 TableCell.displayName = "TableCell"
 
 export {
-  Table,
   TableHeader,
   TableBody,
   TableRow,
