@@ -3,245 +3,248 @@
 import { useState } from "react"
 import { 
   Search, 
-  ChevronDown, 
-  ArrowUpDown,
-  Calendar,
-  Tag,
-  MoreHorizontal,
-  FileText,
+  ChevronDown,
   ChevronRight,
-  Filter,
-  RefreshCw,
-  Download,
+  Calendar,
+  FileText,
   Clock,
-  DollarSign
+  ArrowDownCircle,
+  ArrowUpCircle,
+  DollarSign,
+  Tag,
+  Hash,
+  Eye,
+  MoreVertical
 } from "lucide-react"
 
 interface Transaction {
   id: string
-  date: string
-  type: string
+  type: 'deposit' | 'withdrawal'
   amount: number
-  status: string
+  currency: string
+  status: 'completed' | 'pending' | 'failed'
+  created: string
   description: string
   transactionId: string
 }
 
-export default function DepositWithdrawTransactionsPage() {
+export default function DepositWithdrawPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("all")
-  const [selectedType, setSelectedType] = useState("all")
+  const [selectedType, setSelectedType] = useState<string>("all")
+  const [selectedStatus, setSelectedStatus] = useState<string>("all")
 
   const transactions: Transaction[] = [
     {
-      id: "1",
-      date: "2024-01-15 10:48 PM UTC",
+      id: "66061354",
       type: "deposit",
       amount: 64740,
+      currency: "USD",
       status: "completed",
-      description: "Deposit via USDT",
+      created: "2024-01-15 10:48 PM UTC",
+      description: "Deposit via ETH",
       transactionId: "tx_66061354"
     },
     {
-      id: "2",
-      date: "2024-01-15 10:48 PM UTC",
+      id: "66061353",
       type: "withdrawal",
       amount: 40000,
+      currency: "USD",
       status: "pending",
+      created: "2024-01-15 10:48 PM UTC",
       description: "Withdrawal request",
       transactionId: "tx_66061353"
     }
   ]
 
-  const filteredTransactions = transactions.filter(transaction => {
-    if (selectedStatus !== "all" && transaction.status !== selectedStatus) return false
-    if (selectedType !== "all" && transaction.type !== selectedType) return false
+  const filteredTransactions = transactions.filter(tx => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       return (
-        transaction.transactionId.toLowerCase().includes(query) ||
-        transaction.description.toLowerCase().includes(query)
+        tx.id.toLowerCase().includes(query) ||
+        tx.description.toLowerCase().includes(query) ||
+        tx.transactionId.toLowerCase().includes(query)
       )
     }
+    if (selectedType !== 'all' && tx.type !== selectedType) return false
+    if (selectedStatus !== 'all' && tx.status !== selectedStatus) return false
     return true
   })
 
-  const handleSort = (column: string) => {
-    // Implement sorting logic here
-    console.log("Sorting by:", column)
-  }
-
   return (
-    <div className="p-5 bg-[#F8F9FC]">
+    <div className="p-4 sm:p-6 bg-[#F8F9FC] min-h-screen">
       {/* Header */}
-      <div className="mb-5">
-        <h1 className="text-[#5a5c69] text-2xl font-normal tracking-[-0.5px] flex items-center gap-2">
-          <FileText className="h-6 w-6 text-[#18B69B]" />
-          Transactions
-          <ChevronRight className="h-5 w-5 text-[#858796]" />
-          <span className="text-base text-[#858796] font-light">Deposit/Withdraw</span>
-        </h1>
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="h-8 w-8 rounded-lg bg-[#18B69B]/10 flex items-center justify-center">
+            <FileText className="h-4.5 w-4.5 text-[#18B69B]" />
+          </div>
+          <h1 className="text-[#2D3359] text-xl sm:text-2xl font-semibold">Transactions</h1>
+          <ChevronRight className="h-4 w-4 text-gray-400" />
+          <span className="text-gray-400 text-sm sm:text-base">Deposit/Withdraw</span>
+        </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <div className="relative w-[320px]">
+      <div className="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
           <input
             type="text"
             placeholder="Search by ID, Description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 h-[34px] text-[13px] border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all placeholder:text-[#858796]"
+            className="w-full pl-9 pr-4 h-9 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20 transition-all placeholder:text-gray-400"
           />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#858796]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
+        
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="h-9 pl-3 pr-8 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20 transition-all appearance-none"
+            >
+              <option value="all">All Status</option>
+              <option value="completed">Completed</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Failed</option>
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          </div>
 
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="h-[34px] px-3 text-[13px] text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
-          >
-            <option value="all">All Status</option>
-            <option value="completed">Completed</option>
-            <option value="pending">Pending</option>
-            <option value="failed">Failed</option>
-          </select>
+          <div className="relative">
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="h-9 pl-3 pr-8 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20 transition-all appearance-none"
+            >
+              <option value="all">All Types</option>
+              <option value="deposit">Deposit</option>
+              <option value="withdrawal">Withdrawal</option>
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          </div>
 
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            className="h-[34px] px-3 text-[13px] text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
-          >
-            <option value="all">All Types</option>
-            <option value="deposit">Deposits</option>
-            <option value="withdrawal">Withdrawals</option>
-          </select>
-
-          <button className="h-[34px] px-3 text-[13px] text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 flex items-center gap-1.5 transition-colors">
-            <Calendar className="h-3.5 w-3.5" />
-            Date Range
-          </button>
-          <button className="h-[34px] px-3 text-[13px] text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 flex items-center gap-1.5 transition-colors">
-            <Filter className="h-3.5 w-3.5" />
-            Filters
-          </button>
-          <button className="h-[34px] w-[34px] flex items-center justify-center text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 transition-colors">
-            <RefreshCw className="h-3.5 w-3.5" />
-          </button>
-          <button className="h-[34px] w-[34px] flex items-center justify-center text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 transition-colors">
-            <Download className="h-3.5 w-3.5" />
+          <button className="h-9 w-9 flex items-center justify-center text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <Calendar className="h-4 w-4" />
           </button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-[#e3e6f0] rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        <div className="min-w-full overflow-x-auto">
+          <table className="w-full border-collapse min-w-[1200px]">
             <thead>
-              <tr className="bg-[#18B69B]/5 border-y border-[#e3e6f0]">
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+              <tr className="bg-[#18B69B]/5 border-y border-gray-200">
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
                     <Clock className="h-3.5 w-3.5" />
                     Date
-                    <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="text-[11px] font-semibold text-[#18B69B] uppercase">
                     Type
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
                     <DollarSign className="h-3.5 w-3.5" />
                     Amount
-                    <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="text-[11px] font-semibold text-[#18B69B] uppercase">
                     Status
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Tag className="h-3.5 w-3.5" />
                     Description
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Hash className="h-3.5 w-3.5" />
                     Transaction ID
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+                <th className="text-right whitespace-nowrap px-4 py-3">
+                  <div className="text-[11px] font-semibold text-[#18B69B] uppercase">
                     Actions
                   </div>
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {filteredTransactions.map((transaction, index) => (
-                <tr 
-                  key={transaction.id} 
-                  className={`
-                    h-12 border-b border-[#e3e6f0] last:border-0
-                    hover:bg-[#f8f9fc] transition-colors
-                    ${index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfd]'}
-                  `}
-                >
-                  <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5 text-[#858796]" />
-                      {transaction.date}
+            <tbody className="divide-y divide-gray-100">
+              {filteredTransactions.map((tx) => (
+                <tr key={tx.id} className="hover:bg-gray-50/50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-3.5 w-3.5 text-gray-400" />
+                      <span className="text-[13px] text-gray-600">{tx.created}</span>
                     </div>
                   </td>
-                  <td className="px-4 whitespace-nowrap">
-                    <span className="inline-flex items-center h-[20px] px-2.5 text-[11px] font-medium bg-[#18B69B]/10 text-[#18B69B] rounded-full capitalize">
-                      {transaction.type}
-                    </span>
-                  </td>
-                  <td className="px-4 text-[13px] font-medium whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <DollarSign className="h-3.5 w-3.5 text-[#858796]" />
-                      <span className={transaction.type === 'deposit' ? 'text-[#1cc88a]' : 'text-[#e74a3b]'}>
-                        {transaction.type === 'deposit' ? '+' : '-'}${transaction.amount.toLocaleString()}
-                      </span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      {tx.type === 'deposit' ? (
+                        <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#1cc88a]">
+                          <ArrowDownCircle className="h-4 w-4" />
+                          Deposit
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#e74a3b]">
+                          <ArrowUpCircle className="h-4 w-4" />
+                          Withdrawal
+                        </span>
+                      )}
                     </div>
                   </td>
-                  <td className="px-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center h-[20px] px-2.5 text-[11px] font-medium rounded-full ${
-                      transaction.status === 'completed' 
-                        ? 'text-[#18B69B] bg-[#18B69B]/10'
-                        : transaction.status === 'pending'
-                        ? 'text-yellow-700 bg-yellow-50'
-                        : 'text-red-700 bg-red-50'
+                  <td className="px-4 py-3">
+                    <span className={`text-[13px] font-medium ${
+                      tx.type === 'deposit' ? 'text-[#1cc88a]' : 'text-[#e74a3b]'
                     }`}>
-                      <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
-                        transaction.status === 'completed'
-                          ? 'bg-[#18B69B]'
-                          : transaction.status === 'pending'
-                          ? 'bg-yellow-500'
-                          : 'bg-red-500'
-                      }`} />
-                      {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                      {tx.type === 'deposit' ? '+' : '-'}${tx.amount}
                     </span>
                   </td>
-                  <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <Tag className="h-3.5 w-3.5 text-[#858796]" />
-                      {transaction.description}
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-medium rounded-md ${
+                      tx.status === 'completed' 
+                        ? 'bg-[#1cc88a]/10 text-[#1cc88a]'
+                        : tx.status === 'pending'
+                        ? 'bg-[#f6c23e]/10 text-[#f6c23e]'
+                        : 'bg-[#e74a3b]/10 text-[#e74a3b]'
+                    }`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${
+                        tx.status === 'completed'
+                          ? 'bg-[#1cc88a]'
+                          : tx.status === 'pending'
+                          ? 'bg-[#f6c23e]'
+                          : 'bg-[#e74a3b]'
+                      }`} />
+                      {tx.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-3.5 w-3.5 text-gray-400" />
+                      <span className="text-[13px] text-gray-600">{tx.description}</span>
                     </div>
                   </td>
-                  <td className="px-4 text-[13px] font-mono text-[#858796] whitespace-nowrap">
-                    {transaction.transactionId}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <code className="text-[13px] font-mono text-gray-600">{tx.transactionId}</code>
+                    </div>
                   </td>
-                  <td className="px-4 whitespace-nowrap">
-                    <div className="flex items-center gap-1">
-                      <button className="group p-1.5 hover:bg-[#18B69B]/10 rounded transition-colors">
-                        <MoreHorizontal className="h-3.5 w-3.5 text-[#858796] group-hover:text-[#18B69B] transition-colors" />
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-1">
+                      <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-all">
+                        <Eye className="h-3.5 w-3.5" />
+                      </button>
+                      <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-all">
+                        <MoreVertical className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </td>

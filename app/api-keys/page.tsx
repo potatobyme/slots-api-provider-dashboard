@@ -13,7 +13,9 @@ import {
   Shield,
   Copy,
   RotateCw,
-  Download
+  Download,
+  RefreshCw,
+  Clock
 } from "lucide-react"
 
 interface ApiKey {
@@ -86,179 +88,156 @@ export default function ApiKeysPage() {
   })
 
   return (
-    <div className="p-5 bg-[#F8F9FC]">
+    <div className="p-4 sm:p-6 bg-[#F8F9FC]">
       {/* Header */}
-      <div className="mb-5">
-        <h1 className="text-[#5a5c69] text-2xl font-normal tracking-[-0.5px] flex items-center gap-2">
-          <Hash className="h-6 w-6 text-[#18B69B]" />
-          API Keys
-          <ChevronRight className="h-5 w-5 text-[#858796]" />
-          <span className="text-base text-[#858796] font-light">Management</span>
-        </h1>
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="h-8 w-8 rounded-lg bg-[#18B69B]/10 flex items-center justify-center">
+            <Hash className="h-4.5 w-4.5 text-[#18B69B]" />
+          </div>
+          <h1 className="text-[#2D3359] text-xl sm:text-2xl font-semibold">API Keys</h1>
+        </div>
+        <div className="flex items-center gap-2 text-[#858796]">
+          <span className="text-xs sm:text-sm">Management</span>
+        </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <div className="relative w-[320px]">
-          <input
-            type="text"
-            placeholder="Search by ID, Name, Key..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 h-[34px] text-[13px] border border-[#e3e6f0] rounded focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all placeholder:text-[#858796]"
-          />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#858796]" />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="h-[34px] px-3 text-[13px] text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 focus:outline-none focus:border-[#18B69B] focus:shadow-[0_0_0_1px_#18B69B20] transition-all"
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="disabled">Disabled</option>
+      {/* Search and Actions */}
+      <div className="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 flex-1">
+          <div className="relative flex-1 max-w-xs">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-9 pr-4 h-9 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20 transition-all placeholder:text-gray-400"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          </div>
+          <select className="h-9 px-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#18B69B] focus:ring-2 focus:ring-[#18B69B]/20 bg-white">
+            <option>All Status</option>
+            <option>Active</option>
+            <option>Disabled</option>
           </select>
-
-          <button 
-            onClick={() => setShowCreateModal(true)}
-            className="h-[34px] px-3 text-[13px] text-white bg-[#18B69B] rounded hover:bg-[#18B69B]/90 flex items-center gap-1.5 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Create API Key
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="h-9 w-9 flex items-center justify-center text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <RefreshCw className="h-4 w-4" />
           </button>
-          <button className="h-[34px] w-[34px] flex items-center justify-center text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 transition-colors">
-            <RotateCw className="h-3.5 w-3.5" />
+          <button className="h-9 w-9 flex items-center justify-center text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <Download className="h-4 w-4" />
           </button>
-          <button className="h-[34px] w-[34px] flex items-center justify-center text-[#6e707e] bg-white border border-[#e3e6f0] rounded hover:bg-gray-50 transition-colors">
-            <Download className="h-3.5 w-3.5" />
+          <button className="h-9 px-3 text-sm text-white bg-[#18B69B] rounded-lg hover:bg-[#18B69B]/90 flex items-center gap-2 transition-all">
+            <Plus className="h-4 w-4" />
+            <span>Create API Key</span>
           </button>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-[#e3e6f0] rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+      {/* API Keys Table */}
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        <div className="min-w-full overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-[#18B69B]/5 border-y border-[#e3e6f0]">
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
+              <tr className="bg-[#18B69B]/5 border-y border-gray-200">
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
                     <Hash className="h-3.5 w-3.5" />
                     ID
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <Hash className="h-3.5 w-3.5" />
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <User className="h-3.5 w-3.5" />
                     Name
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <Hash className="h-3.5 w-3.5" />
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Shield className="h-3.5 w-3.5" />
                     API Key
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <Hash className="h-3.5 w-3.5" />
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Clock className="h-3.5 w-3.5" />
                     Created
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <Hash className="h-3.5 w-3.5" />
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Clock className="h-3.5 w-3.5" />
                     Last Used
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <Hash className="h-3.5 w-3.5" />
+                <th className="text-left whitespace-nowrap px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#18B69B] uppercase">
+                    <Shield className="h-3.5 w-3.5" />
                     Status
                   </div>
                 </th>
-                <th className="h-11 px-4 text-left text-[11px] font-semibold text-[#18B69B] uppercase tracking-wider whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    Actions
-                  </div>
+                <th className="text-right whitespace-nowrap px-4 py-3">
+                  <div className="text-[11px] font-semibold text-[#18B69B] uppercase">Actions</div>
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100">
               {filteredKeys.map((key, index) => (
-                <tr 
-                  key={key.id} 
-                  className={`
-                    h-12 border-b border-[#e3e6f0] last:border-0
-                    hover:bg-[#f8f9fc] transition-colors
-                    ${index % 2 === 0 ? 'bg-white' : 'bg-[#fcfcfd]'}
-                  `}
-                >
-                  <td className="px-4 text-[13px] font-medium text-[#18B69B] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      {key.id}
-                      <button className="group p-1 hover:bg-[#18B69B]/10 rounded transition-colors">
-                        <Copy className="h-3.5 w-3.5 text-[#858796] group-hover:text-[#18B69B] transition-colors" />
+                <tr key={index} className="hover:bg-gray-50/50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-medium text-[#18B69B]">{key.id}</span>
+                      <button 
+                        onClick={() => handleCopyKey(key.id)}
+                        className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-all"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </td>
-                  <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <Hash className="h-3.5 w-3.5 text-[#858796]" />
-                      {key.name}
-                    </div>
+                  <td className="px-4 py-3">
+                    <span className="text-[13px] text-gray-900">{key.name}</span>
                   </td>
-                  <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <Hash className="h-3.5 w-3.5 text-[#858796]" />
-                      {key.key}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <code className="text-[13px] font-mono text-gray-600">{key.key}</code>
                       <button 
                         onClick={() => handleCopyKey(key.key)}
-                        className="group p-1 hover:bg-[#18B69B]/10 rounded transition-colors"
+                        className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-all"
                       >
-                        <Copy className="h-3.5 w-3.5 text-[#858796] group-hover:text-[#18B69B] transition-colors" />
+                        <Copy className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </td>
-                  <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <Hash className="h-3.5 w-3.5 text-[#858796]" />
-                      {key.created}
-                    </div>
+                  <td className="px-4 py-3">
+                    <span className="text-[13px] text-gray-600">{key.created}</span>
                   </td>
-                  <td className="px-4 text-[13px] text-[#858796] whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <Hash className="h-3.5 w-3.5 text-[#858796]" />
-                      {key.lastUsed}
-                    </div>
+                  <td className="px-4 py-3">
+                    <span className="text-[13px] text-gray-600">{key.lastUsed}</span>
                   </td>
-                  <td className="px-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center h-[20px] px-2.5 text-[11px] font-medium rounded-full ${
-                      key.status === 'active' 
-                        ? 'text-[#18B69B] bg-[#18B69B]/10'
-                        : 'text-red-700 bg-red-50'
-                    }`}>
-                      <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
-                        key.status === 'active'
-                          ? 'bg-[#18B69B]'
-                          : 'bg-red-500'
-                      }`} />
-                      {key.status.charAt(0).toUpperCase() + key.status.slice(1)}
-                    </span>
+                  <td className="px-4 py-3">
+                    {key.status === "active" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-[#18B69B] bg-[#18B69B]/5 rounded-md">
+                        <span className="h-1 w-1 rounded-full bg-[#18B69B]" />
+                        Active
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium text-red-600 bg-red-50 rounded-md">
+                        <span className="h-1 w-1 rounded-full bg-red-500" />
+                        Disabled
+                      </span>
+                    )}
                   </td>
-                  <td className="px-4 whitespace-nowrap">
-                    <div className="flex items-center gap-1">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-1">
                       <button 
                         onClick={() => handleDeleteKey(key.id)}
-                        className="group p-1.5 hover:bg-red-50 rounded transition-colors"
+                        className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded transition-all"
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-[#858796] group-hover:text-red-600 transition-colors" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </td>
