@@ -1,11 +1,21 @@
 "use client"
 
-import { Info, Copy, User, Key, Clock } from "lucide-react"
+import { Info, Copy, User, Key, Clock, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { useQuery } from '@apollo/client';
+import { GET_BALANCE_QUERY } from '@/lib/graphql/auth';
 
 export default function DashboardPage() {
   const [copied, setCopied] = useState(false)
   const depositAddress = "0xa38b04735C44F5e8ca6EAbFb3611E068F323a31f"
+  const { data, loading } = useQuery(GET_BALANCE_QUERY, {
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'cache-first',
+    pollInterval: 30000,
+    onError: (error) => {
+      console.error('Balance fetch error:', error);
+    }
+  });
 
   const copyToClipboard = async () => {
     try {
@@ -45,16 +55,16 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Billing Statistics */}
+      {/* Statistics */}
       <section>
         <div className="flex items-center gap-2 mb-3 sm:mb-4">
           <Clock className="h-4 sm:h-5 w-4 sm:w-5 text-[#18B69B]" />
-          <h2 className="text-base sm:text-lg font-medium">Billing Statistics</h2>
+          <h2 className="text-base sm:text-lg font-medium">Statistics</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <div className="bg-white rounded-lg border border-gray-200">
             <div className="flex items-center justify-between p-3 sm:p-4">
-              <div className="text-xs sm:text-sm text-gray-600">Billing Balance ($)</div>
+              <div className="text-xs sm:text-sm text-gray-600">Balance</div>
               <button className="text-gray-400 hover:text-gray-500">
                 <svg className="h-3 sm:h-4 w-3 sm:w-4" viewBox="0 0 16 16" fill="none">
                   <circle cx="8" cy="8" r="1" fill="currentColor" />
@@ -66,7 +76,15 @@ export default function DashboardPage() {
             <div className="px-3 sm:px-4 pb-3 sm:pb-4">
               <div className="flex items-center gap-1 sm:gap-2">
                 <span className="text-green-500 text-xl sm:text-2xl font-semibold">$</span>
-                <span className="text-xl sm:text-2xl font-semibold">14.98</span>
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-[#18B69B]" />
+                  </div>
+                ) : (
+                  <span className="text-xl sm:text-2xl font-semibold">
+                    {data?.getBalance.toFixed(2) || '0.00'}
+                  </span>
+                )}
               </div>
             </div>
           </div>
