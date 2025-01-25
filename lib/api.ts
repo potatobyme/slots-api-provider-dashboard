@@ -13,6 +13,13 @@ export interface User {
     balance: number;
 }
 
+interface AuthResponse {
+    success: boolean;
+    accessToken: string;
+    user: User;
+    error?: string;
+}
+
 export interface SlotMachine {
     id: string;
     machineId: string;
@@ -31,7 +38,7 @@ export interface SlotMachine {
 
 // Auth API calls
 export const authApi = {
-    register: async (data: { username: string; email: string; password: string }) => {
+    register: async (data: { username: string; email: string; password: string }): Promise<AuthResponse> => {
         console.log('Making registration request to:', `${API_URL}/auth/register`);
         try {
             const res = await fetch(`${API_URL}/auth/register`, {
@@ -49,7 +56,7 @@ export const authApi = {
         }
     },
 
-    login: async (data: { email: string; password: string }) => {
+    login: async (data: { email: string; password: string }): Promise<AuthResponse> => {
         console.log('Making login request to:', `${API_URL}/auth/login`);
         try {
             const res = await fetch(`${API_URL}/auth/login`, {

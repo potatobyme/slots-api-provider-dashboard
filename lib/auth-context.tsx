@@ -121,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const response = await authApi.register({ username, email, password });
         
         if (response.success) {
-            saveAuthData(response.token, rememberMe);
+            saveAuthData(response.accessToken, rememberMe);
             router.prefetch('/dashboard');
             router.push('/dashboard');
         } else {
@@ -132,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const login = async (email: string, password: string, rememberMe: boolean = true) => {
         const response = await authApi.login({ email, password });
         if (response.success) {
-            saveAuthData(response.token, rememberMe);
+            saveAuthData(response.accessToken, rememberMe);
             router.prefetch('/dashboard');
             router.push('/dashboard');
         } else {

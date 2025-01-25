@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Bell, User, Settings, ChevronDown } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { Search, Bell, User, Settings, ChevronDown, LogOut } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 interface SearchResult {
   id: string;
@@ -69,7 +70,15 @@ const SearchInput = () => {
 
 const NavBar = () => {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const onLogout = async () => {
+    logout();
+    router.push('/auth/login');
+  };
 
   const getPageTitle = () => {
     switch (pathname) {
@@ -121,11 +130,48 @@ const NavBar = () => {
             </button>
 
             {/* Profile */}
-            <button className="flex items-center gap-2 p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                <User className="h-5 w-5" />
-              </div>
-            </button>
+            <div className="relative">
+              <button 
+                className="flex items-center gap-2 p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+              >
+                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5" />
+                </div>
+                {user?.username && (
+                  <span className="hidden md:block text-sm font-medium">{user.username}</span>
+                )}
+              </button>
+
+              {/* Profile Dropdown */}
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </Link>
+                  <button
+                    onClick={onLogout}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

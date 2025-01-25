@@ -15,7 +15,10 @@ const generateAccessToken = (user) => {
     return jwt.sign(
         {
             id: user._id,
+            username: user.username,
+            email: user.email,
             role: user.role,
+            balance: user.balance,
             tokenVersion: user.tokenVersion // For invalidating tokens on password change/logout
         },
         process.env.JWT_SECRET,
@@ -27,6 +30,11 @@ const generateAccessToken = (user) => {
 router.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
+
+        // Validate username is not an email
+        if (username.includes('@')) {
+            return res.status(400).json({ error: 'Username cannot be an email address' });
+        }
 
         // Check if user exists
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
@@ -62,7 +70,8 @@ router.post('/register', async (req, res) => {
                 id: user._id,
                 username: user.username,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                balance: user.balance
             }
         });
     } catch (error) {
@@ -110,7 +119,8 @@ router.post('/login', async (req, res) => {
                 id: user._id,
                 username: user.username,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                balance: user.balance
             }
         });
     } catch (error) {
