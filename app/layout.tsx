@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
+import LoadingBar from "@/components/loading-bar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <LoadingBar />
         <div className="min-h-screen">
           <NavBar />
           <div className="flex h-[calc(100vh-64px)]">
