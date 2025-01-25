@@ -23,7 +23,7 @@ export default function RootLayout({
           <NavBar />
           <div className="flex h-[calc(100vh-64px)]">
             <Sidebar />
-            <main className="flex-1 overflow-auto bg-[#F8F9FC]">
+            <main className="flex-1 overflow-auto bg-[#F8F9FC] lg:ml-64">
               {children}
             </main>
           </div>
