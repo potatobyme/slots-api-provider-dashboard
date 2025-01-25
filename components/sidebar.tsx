@@ -32,6 +32,10 @@ interface SubMenu {
   items: MenuItem[]
 }
 
+interface SidebarProps {
+  isOpen: boolean
+}
+
 const MenuItem = ({ href, icon, children, isActive = false }: { href: string, icon: React.ReactNode, children: React.ReactNode, isActive?: boolean }) => {
   return (
     <Link
@@ -76,11 +80,11 @@ const SubMenu = ({ label, icon, children, isActive = false }: { label: string, i
   )
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen }: SidebarProps) {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 hidden lg:flex lg:flex-col">
+    <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
       {/* Logo */}
       <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200">
         <span className="font-semibold text-[#2D3359]">Dashboard</span>
